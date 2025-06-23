@@ -1,5 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors -->
+    <color name="primary_color">#F27122</color>
+    <color name="primary_color_dark">#E55A0A</color>
+    <color name="primary_color_light">#F58B47</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary_color">#464646</color>
+    <color name="secondary_color_dark">#2E2E2E</color>
+    <color name="secondary_color_light">#5E5E5E</color>
+
+    <!-- Accent Colors -->
+    <color name="accent_color">#FF9800</color>
+    <color name="accent_color_light">#FFB74D</color>
+
+    <!-- Background Colors -->
+    <color name="background_primary">#464646</color>
+    <color name="background_secondary">#F5F5F5</color>
+    <color name="background_card">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_light_gray">#CCCCCC</color>
+
+    <!-- Status Colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
+    <color name="info_color">#2196F3</color>
+
+    <!-- Divider Colors -->
+    <color name="divider_color">#E0E0E0</color>
+    <color name="border_color">#EEEEEE</color>
+
+    <!-- Button Colors -->
+    <color name="button_disabled">#CCCCCC</color>
+    <color name="button_pressed">#E55A0A</color>
+
+    <!-- Transparent Colors -->
+    <color name="transparent">#00000000</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="white_overlay">#66FFFFFF</color>
 </resources>
