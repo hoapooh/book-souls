@@ -16,17 +16,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:scrollbars="none"
-        android:fadeScrollbars="true">
+        android:fadeScrollbars="true"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="700dp">
 
+            <!-- Back Button -->
+            <!--<ImageButton
+                android:id="@+id/buttonBack"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_back"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />-->
             <View
                 android:id="@+id/spacer"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="16dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
@@ -99,7 +110,7 @@
                     android:orientation="vertical"
                     android:padding="24dp">
 
-                    <!-- Full Name Input Layout -->
+                    <!-- Full Name Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutFullName"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -119,14 +130,14 @@
                             android:id="@+id/editTextFullName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPersonName"
                             android:paddingStart="40dp"
+                            android:inputType="textPersonName"
                             android:textColor="#333333"
                             android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Email Input Layout -->
+                    <!-- Email Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutEmail"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -147,21 +158,22 @@
                             android:id="@+id/editTextEmail"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textEmailAddress"
                             android:paddingStart="40dp"
+                            android:paddingEnd="0dp"
+                            android:inputType="textEmailAddress"
                             android:textColor="#333333"
                             android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Phone Input Layout -->
+                    <!-- Phone Number Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutPhone"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:hint="Phone Number"
+                        android:hint="Phone Number (Optional)"
                         app:boxCornerRadiusBottomEnd="12dp"
                         app:boxCornerRadiusBottomStart="12dp"
                         app:boxCornerRadiusTopEnd="12dp"
@@ -175,14 +187,15 @@
                             android:id="@+id/editTextPhone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="phone"
                             android:paddingStart="40dp"
+                            android:paddingEnd="0dp"
+                            android:inputType="phone"
                             android:textColor="#333333"
                             android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Password Input Layout -->
+                    <!-- Password Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutPassword"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -197,20 +210,22 @@
                         app:boxStrokeColor="@color/primary_color"
                         app:endIconMode="password_toggle"
                         app:hintTextColor="@color/primary_color"
-                        app:startIconDrawable="@drawable/ic_lock">
+                        app:startIconDrawable="@drawable/ic_lock"
+                        app:helperTextTextColor="#999999">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/editTextPassword"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="40dp"
+                            android:paddingEnd="0dp"
                             android:inputType="textPassword"
                             android:textColor="#333333"
                             android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Confirm Password Input Layout -->
+                    <!-- Confirm Password Input -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayoutConfirmPassword"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -232,14 +247,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingStart="40dp"
+                            android:paddingEnd="0dp"
                             android:inputType="textPassword"
                             android:textColor="#333333"
                             android:textSize="16sp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Terms and Conditions -->
-                    <LinearLayout
+                    <!-- Terms and Privacy Policy -->
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -256,13 +272,37 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_gravity="center_vertical"
-                            android:text="I agree to the Terms &amp; Conditions and Privacy Policy"
+                            android:text="I agree to the Terms of Service and Privacy Policy"
                             android:textColor="#666666"
-                            android:textSize="14sp" />
+                            android:textSize="13sp"
+                            android:lineSpacingExtra="2dp" />
+                    </LinearLayout>-->
 
-                    </LinearLayout>
+                    <!-- Newsletter Subscription -->
+                    <!--<LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
 
-                    <!-- Sign Up Button -->
+                        <CheckBox
+                            android:id="@+id/checkBoxNewsletter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/primary_color" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_gravity="center_vertical"
+                            android:text="Subscribe to our newsletter for book recommendations"
+                            android:textColor="#666666"
+                            android:textSize="13sp" />
+
+                    </LinearLayout>-->
+
+                    <!-- Signup Button -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/buttonSignUp"
                         android:layout_width="match_parent"
@@ -276,6 +316,71 @@
                         app:cornerRadius="12dp"
                         app:elevation="4dp" />
 
+                    <!-- OR Divider -->
+                    <!--<LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#E0E0E0" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="16dp"
+                            android:text="OR"
+                            android:textColor="#999999"
+                            android:textSize="12sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_weight="1"
+                            android:background="#E0E0E0" />
+
+                    </LinearLayout>-->
+
+                    <!-- Social Signup Buttons -->
+                    <!--<LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonGoogleSignup"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="Google"
+                            android:textColor="#666666"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_google"
+                            app:iconGravity="textStart"
+                            app:strokeColor="#E0E0E0" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonFacebookSignup"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Facebook"
+                            android:textColor="#666666"
+                            app:cornerRadius="12dp"
+                            app:icon="@drawable/ic_facebook"
+                            app:iconGravity="textStart"
+                            app:strokeColor="#E0E0E0" />
+                    </LinearLayout>-->
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -284,11 +389,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
                 android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/formContainer">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -300,7 +406,7 @@
                     android:id="@+id/textLogIn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Sign In"
+                    android:text="Log In"
                     android:textColor="@color/accent_color"
                     android:textSize="14sp"
                     android:textStyle="bold"

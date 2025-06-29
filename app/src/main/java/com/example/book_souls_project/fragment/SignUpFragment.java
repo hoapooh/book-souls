@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import com.example.book_souls_project.R;
 
 public class SignUpFragment extends Fragment {
     private TextView textLogIn;
+    private Button buttonSignUp;
 
     @Nullable
     @Override
@@ -23,6 +25,7 @@ public class SignUpFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.authentication_signup, container, false);
         textLogIn = view.findViewById(R.id.textLogIn);
+        buttonSignUp = view.findViewById(R.id.buttonSignUp);
 
         return view;
     }
@@ -31,14 +34,16 @@ public class SignUpFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Use inside fragment, preferable way
+        // Navigate to login
         textLogIn.setOnClickListener(v -> {
             NavHostFragment.findNavController(SignUpFragment.this).navigate(R.id.action_SignupFragment_to_LoginFragment);
         });
 
-        // Use inside activity or custom Views
-        /*textLogIn.setOnClickListener(v -> {
-            NavHostFragment.findNavController(SignUpFragment.this).navigate(R.id.action_SignupFragment_to_LoginFragment);
-        });*/
+        // Handle signup button click
+        buttonSignUp.setOnClickListener(v -> {
+            // For demo purposes, navigate directly to home
+            // In a real app, you would validate and create account first
+            NavHostFragment.findNavController(SignUpFragment.this).navigate(R.id.action_SignupFragment_to_Home);
+        });
     }
 }

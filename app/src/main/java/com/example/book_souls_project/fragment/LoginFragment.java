@@ -36,14 +36,21 @@ public class LoginFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Use inside fragment, preferable way
+        // Navigate to signup
         textSignUp.setOnClickListener(v -> {
             NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.action_LoginFragment_to_SignupFragment);
         });
 
-        // Use inside activity or custom Views
-        /*textLogIn.setOnClickListener(v -> {
-            NavHostFragment.findNavController(SignUpFragment.this).navigate(R.id.action_SignupFragment_to_LoginFragment);
-        });*/
+        // Handle login button click
+        binding.buttonLogin.setOnClickListener(v -> {
+            // For demo purposes, navigate directly to home
+            // In a real app, you would validate credentials first
+            NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.action_LoginFragment_to_Home);
+        });
+
+        // Handle test button click for quick navigation to home
+        binding.buttonTestHome.setOnClickListener(v -> {
+            NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.action_LoginFragment_to_Home);
+        });
     }
 }

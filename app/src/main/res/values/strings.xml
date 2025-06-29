@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">book_souls_project</string>
+
+    <!--  Bottom Navigation  -->
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="cart">Cart</string>
+    <string name="profile">Profile</string>
 </resources>

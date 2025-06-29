@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/booksouls_logo"
+                    android:src="@drawable/booksouls_logo_new"
                     app:shapeAppearanceOverlay="@style/CircleImage" />
 
             </androidx.cardview.widget.CardView>
@@ -268,6 +268,7 @@
 
             <!-- Sign Up Link -->
             <LinearLayout
+                android:id="@+id/layoutSignUpLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -297,6 +298,21 @@
                     android:padding="8dp" />
 
             </LinearLayout>
+
+            <!-- Test Button for Quick Home Navigation -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonTestHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/accent_color"
+                android:text="TEST: Go to Home"
+                android:textColor="@color/text_white"
+                android:textSize="14sp"
+                app:cornerRadius="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutSignUpLink" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

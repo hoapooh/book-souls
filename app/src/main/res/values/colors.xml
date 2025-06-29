@@ -44,4 +44,8 @@
     <color name="transparent">#00000000</color>
     <color name="black_overlay">#66000000</color>
     <color name="white_overlay">#66FFFFFF</color>
+    
+    <!-- Bottom Navigation Colors -->
+    <color name="bottom_nav_selected">#F27122</color>
+    <color name="bottom_nav_unselected">#757575</color>
 </resources>
