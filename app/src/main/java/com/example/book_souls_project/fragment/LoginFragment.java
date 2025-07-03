@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.book_souls_project.MainActivity;
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
@@ -90,9 +91,14 @@ public class LoginFragment extends Fragment {
                     // Show success message
                     Toast.makeText(requireContext(), "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
                     
-                    // Navigate to home
-                    NavHostFragment.findNavController(LoginFragment.this)
-                            .navigate(R.id.action_LoginFragment_to_Home);
+                    // Navigate to home using MainActivity method
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).handleLoginSuccess();
+                    } else {
+                        // Fallback navigation
+                        NavHostFragment.findNavController(LoginFragment.this)
+                                .navigate(R.id.action_LoginFragment_to_Home);
+                    }
                 }
 
                 @Override

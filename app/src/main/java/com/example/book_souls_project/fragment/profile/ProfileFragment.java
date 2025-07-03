@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.book_souls_project.MainActivity;
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
@@ -187,13 +188,10 @@ public class ProfileFragment extends Fragment {
      */
     private void performLogout() {
         try {
-            // Clear user session using AuthRepository
-            authRepository.logout();
-            
             // Show success message
             Toast.makeText(requireContext(), "Đăng xuất thành công", Toast.LENGTH_SHORT).show();
             
-            // Navigate to login screen
+            // Navigate to login screen (handleLogout will clear session)
             navigateToLogin();
             
         } catch (Exception e) {
@@ -205,14 +203,17 @@ public class ProfileFragment extends Fragment {
      * Navigate to login screen
      */
     private void navigateToLogin() {
-        // Clear the back stack and navigate to login
-        try {
-            Navigation.findNavController(requireView()).navigate(R.id.action_profileFragment_to_loginFragment);
-        } catch (Exception e) {
-            // If navigation action doesn't exist, you might need to create it in nav_graph.xml
-            // Alternative: Use activity to restart or navigate manually
-            if (getActivity() != null) {
-                getActivity().finish(); // Close current activity and let MainActivity handle the navigation
+        // Use MainActivity's handleLogout method for consistent navigation
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).handleLogout();
+        } else {
+            // Fallback navigation
+            try {
+                Navigation.findNavController(requireView()).navigate(R.id.loginFragment);
+            } catch (Exception e) {
+                if (getActivity() != null) {
+                    getActivity().finish();
+                }
             }
         }
     }
