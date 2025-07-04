@@ -3,6 +3,7 @@ package com.example.book_souls_project.api;
 import android.content.Context;
 
 import com.example.book_souls_project.api.repository.AuthRepository;
+import com.example.book_souls_project.api.repository.BookRepository;
 import com.example.book_souls_project.api.service.AuthenticationService;
 
 /**
@@ -15,6 +16,7 @@ public class ApiRepository {
     
     // Repository instances
     private AuthRepository authRepository;
+    private BookRepository bookRepository;
 
     private ApiRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -33,6 +35,14 @@ public class ApiRepository {
             authRepository = new AuthRepository(context);
         }
         return authRepository;
+    }
+
+    // Get BookRepository instance
+    public BookRepository getBookRepository() {
+        if (bookRepository == null) {
+            bookRepository = new BookRepository(context);
+        }
+        return bookRepository;
     }
 
     // Deprecated methods for backward compatibility
