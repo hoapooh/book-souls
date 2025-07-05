@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Primary Colors -->
-    <color name="primary_color">#F27122</color>
+    <color name="primary_color">#FB774D</color>
     <color name="primary_color_dark">#E55A0A</color>
     <color name="primary_color_light">#F58B47</color>
 
     <!-- Secondary Colors -->
-    <color name="secondary_color">#464646</color>
+    <color name="secondary_color">#45AE9F</color>
     <color name="secondary_color_dark">#2E2E2E</color>
     <color name="secondary_color_light">#5E5E5E</color>
 
