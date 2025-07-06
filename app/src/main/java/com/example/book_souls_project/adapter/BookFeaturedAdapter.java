@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.types.book.Book;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +124,7 @@ public class BookFeaturedAdapter extends RecyclerView.Adapter<BookFeaturedAdapte
             
             // Set book price
             if (book.getPrice() > 0) {
-                textBookPrice.setText(String.format(Locale.getDefault(), "$%.2f", book.getPrice() / 100.0));
+                textBookPrice.setText(String.format(Locale.getDefault(), "₫%,d", book.getPrice()));
             } else {
                 textBookPrice.setText("Free");
             }
@@ -134,17 +136,17 @@ public class BookFeaturedAdapter extends RecyclerView.Adapter<BookFeaturedAdapte
                 textRating.setText("N/A");
             }
 
-            // TODO: Load book cover image using Glide or Picasso
-            // For now, we'll use a placeholder
-            // if (book.getImage() != null && !book.getImage().isEmpty()) {
-            //     Glide.with(imageBookCover.getContext())
-            //         .load(book.getImage())
-            //         .placeholder(R.drawable.booksouls_logo_new)
-            //         .error(R.drawable.booksouls_logo_new)
-            //         .into(imageBookCover);
-            // } else {
+            // Load book cover image
+            if (book.getImage() != null && !book.getImage().isEmpty()) {
+                Glide.with(imageBookCover.getContext())
+                    .load(book.getImage())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.booksouls_logo_new)
+                    .error(R.drawable.booksouls_logo_new)
+                    .into(imageBookCover);
+            } else {
                 imageBookCover.setImageResource(R.drawable.booksouls_logo_new);
-            // }
+            }
         }
     }
 }

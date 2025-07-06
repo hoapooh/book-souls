@@ -2,6 +2,7 @@ package com.example.book_souls_project.fragment.home;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -157,8 +158,13 @@ public class Home extends Fragment {
     
     private void onBookClick(Book book) {
         Log.d(TAG, "Book clicked: " + book.getTitle());
-        Toast.makeText(getContext(), "Opening: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-        // TODO: Navigate to book details fragment
+        
+        // Navigate to book detail using Navigation Component
+        Bundle args = new Bundle();
+        args.putString("book_id", book.getId());
+        
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(R.id.action_Home_to_BookDetail, args);
     }
     
     private void onAddToCartClick(Book book) {

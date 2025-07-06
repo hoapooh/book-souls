@@ -3,6 +3,8 @@ package com.example.book_souls_project.api.repository;
 import android.content.Context;
 
 import com.example.book_souls_project.api.service.BookService;
+import com.example.book_souls_project.api.types.book.Book;
+import com.example.book_souls_project.api.types.book.BookDetailResponse;
 import com.example.book_souls_project.api.types.book.BookListResponse;
 
 import retrofit2.Call;
@@ -78,8 +80,35 @@ public class BookRepository extends BaseRepository {
         });
     }
 
+    public void getBookById(String bookId, BookDetailCallback callback) {
+        Call<BookDetailResponse> call = bookService.getBookById(bookId);
+        
+        executeCall(call, new ApiCallback<BookDetailResponse>() {
+            @Override
+            public void onSuccess(BookDetailResponse response) {
+                callback.onBookLoaded(response.getResult());
+            }
+
+            @Override
+            public void onError(String error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onLoading() {
+                callback.onLoading();
+            }
+        });
+    }
+
     public interface BookCallback {
         void onBooksLoaded(BookListResponse response);
+        void onError(String error);
+        default void onLoading() {}
+    }
+    
+    public interface BookDetailCallback {
+        void onBookLoaded(Book book);
         void onError(String error);
         default void onLoading() {}
     }
