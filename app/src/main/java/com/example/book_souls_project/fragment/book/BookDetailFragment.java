@@ -27,6 +27,7 @@ import com.example.book_souls_project.api.repository.PublisherRepository;
 import com.example.book_souls_project.api.types.book.Book;
 import com.example.book_souls_project.api.types.category.Category;
 import com.example.book_souls_project.api.types.publisher.Publisher;
+import com.example.book_souls_project.util.CartManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
@@ -67,6 +68,7 @@ public class BookDetailFragment extends Fragment {
     private CategoryRepository categoryRepository;
     private PublisherRepository publisherRepository;
     private BookFeaturedAdapter relatedBooksAdapter;
+    private CartManager cartManager;
 
     public static BookDetailFragment newInstance(String bookId) {
         BookDetailFragment fragment = new BookDetailFragment();
@@ -87,6 +89,9 @@ public class BookDetailFragment extends Fragment {
         bookRepository = ApiRepository.getInstance(requireContext()).getBookRepository();
         categoryRepository = ApiRepository.getInstance(requireContext()).getCategoryRepository();
         publisherRepository = ApiRepository.getInstance(requireContext()).getPublisherRepository();
+        
+        // Initialize cart manager
+        cartManager = new CartManager(requireContext());
     }
 
     @Override
@@ -282,6 +287,24 @@ public class BookDetailFragment extends Fragment {
         
         // Load additional details (category and publisher)
         loadCategoryDetails(book);
+        
+        // Update cart button text
+        updateCartButtonText();
+    }
+    
+    private void updateCartButtonText() {
+        if (currentBook != null) {
+            boolean isInCart = cartManager.isInCart(currentBook.getId());
+            int quantity = cartManager.getBookQuantityInCart(currentBook.getId());
+            
+            if (isInCart) {
+                buttonAddToCart.setText("In Cart (" + quantity + ")");
+                buttonAddToCart.setEnabled(true);
+            } else {
+                buttonAddToCart.setText("Add to Cart");
+                buttonAddToCart.setEnabled(currentBook.getStock() > 0);
+            }
+        }
     }
 
     private void loadCategoryDetails(Book book) {
@@ -362,15 +385,43 @@ public class BookDetailFragment extends Fragment {
 
     private void addToCart(Book book) {
         Log.d(TAG, "Add to cart: " + book.getTitle());
-        Toast.makeText(getContext(), book.getTitle() + " added to cart!", Toast.LENGTH_SHORT).show();
-        // TODO: Implement actual add to cart functionality
+        
+        // Check if book is available
+        if (book.getStock() <= 0) {
+            Toast.makeText(getContext(), "This book is out of stock!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Add book to cart with quantity 1
+        boolean success = cartManager.addToCart(book, 1);
+        
+        if (success) {
+            Toast.makeText(getContext(), book.getTitle() + " added to cart!", Toast.LENGTH_SHORT).show();
+            updateCartButtonText();
+        } else {
+            Toast.makeText(getContext(), "Failed to add book to cart!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void buyNow(Book book) {
         Log.d(TAG, "Buy now: " + book.getTitle());
+        
+        // Check if book is available
+        if (book.getStock() <= 0) {
+            Toast.makeText(getContext(), "This book is out of stock!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Add to cart first if not already in cart
+        if (!cartManager.isInCart(book.getId())) {
+            cartManager.addToCart(book, 1);
+        }
+        
+        // Show buy now message
         Toast.makeText(getContext(), "Redirecting to checkout for " + book.getTitle(), Toast.LENGTH_SHORT).show();
-        // TODO: Implement buy now functionality
-    }
+        
+        // TODO: Navigate to checkout/payment screen
+        }
 
     private void addToWishlist(Book book) {
         Log.d(TAG, "Add to wishlist: " + book.getTitle());

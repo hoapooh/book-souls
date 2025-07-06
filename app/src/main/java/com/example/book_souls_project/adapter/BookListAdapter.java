@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.types.book.Book;
+import com.example.book_souls_project.util.CartManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -24,6 +25,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
     private List<Book> books = new ArrayList<>();
     private OnBookClickListener onBookClickListener;
     private OnAddToCartClickListener onAddToCartClickListener;
+    private CartManager cartManager;
 
     public interface OnBookClickListener {
         void onBookClick(Book book);
@@ -39,6 +41,10 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
 
     public void setOnAddToCartClickListener(OnAddToCartClickListener listener) {
         this.onAddToCartClickListener = listener;
+    }
+
+    public void setCartManager(CartManager cartManager) {
+        this.cartManager = cartManager;
     }
 
     public void setBooks(List<Book> books) {
@@ -137,6 +143,17 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
                     textRating.setText(String.format(Locale.getDefault(), "%.1f", book.getRating()));
                 } else {
                     textRating.setText("N/A");
+                }
+            }
+
+            // Update add to cart button based on stock
+            if (buttonAddToCart != null) {
+                if (book.getStock() <= 0) {
+                    buttonAddToCart.setEnabled(false);
+                    buttonAddToCart.setAlpha(0.5f);
+                } else {
+                    buttonAddToCart.setEnabled(true);
+                    buttonAddToCart.setAlpha(1.0f);
                 }
             }
 
