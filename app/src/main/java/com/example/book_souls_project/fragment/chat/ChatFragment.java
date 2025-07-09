@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.adapter.ChatAdapter;
 import com.example.book_souls_project.model.Message;
+import com.example.book_souls_project.model.SignalRMessage;
 import com.example.book_souls_project.service.SignalRService;
 import com.example.book_souls_project.util.TokenManager;
 import com.example.book_souls_project.api.client.ChatApiClient;
@@ -311,10 +312,47 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
     }
     
     @Override
-    public void onMessageReceived(String message) {
+    public void onMessageReceived(SignalRMessage signalRMessage) {
+        Log.d(TAG, "ChatFragment.onMessageReceived() called with SignalRMessage");
+        Log.d(TAG, "Received SignalRMessage: " + signalRMessage.toString());
+        Log.d(TAG, "Message ID: " + signalRMessage.getId());
+        Log.d(TAG, "Message text: '" + signalRMessage.getText() + "'");
+        Log.d(TAG, "Sender ID: " + signalRMessage.getSenderId());
+        Log.d(TAG, "Receiver ID: " + signalRMessage.getReceiverId());
+        Log.d(TAG, "Conversation ID: " + signalRMessage.getConversationId());
+        Log.d(TAG, "Sent at: " + signalRMessage.getSentAt());
+        Log.d(TAG, "Current thread: " + Thread.currentThread().getName());
+        
         requireActivity().runOnUiThread(() -> {
-            Log.d(TAG, "Message received: " + message);
-            addLocalMessage(message, false); // Display on left side (from support)
+            Log.d(TAG, "Adding received SignalRMessage to UI");
+            Log.d(TAG, "Messages list size before: " + messages.size());
+            
+            // Convert SignalRMessage to our local Message model
+            String messageText = signalRMessage.getText() != null ? signalRMessage.getText() : "";
+            
+            // Parse timestamp - SignalR sends string, we need long
+            long timestamp = System.currentTimeMillis(); // Default to current time
+            try {
+                if (signalRMessage.getSentAt() != null && !signalRMessage.getSentAt().isEmpty()) {
+                    // Try to parse as milliseconds first
+                    timestamp = Long.parseLong(signalRMessage.getSentAt());
+                }
+            } catch (NumberFormatException e) {
+                Log.d(TAG, "Could not parse timestamp from SignalR message, using current time: " + e.getMessage());
+            }
+            
+            Message localMessage = new Message(messageText, false, timestamp);
+            
+            // Add to messages list and update adapter
+            messages.add(localMessage);
+            chatAdapter.notifyItemInserted(messages.size() - 1);
+            recyclerViewMessages.smoothScrollToPosition(messages.size() - 1);
+            
+            Log.d(TAG, "Messages list size after: " + messages.size());
+            Log.d(TAG, "SignalRMessage added to UI successfully");
+            
+            // Show a toast to confirm message was received
+            Toast.makeText(requireContext(), "New message: " + messageText, Toast.LENGTH_SHORT).show();
         });
     }
     
@@ -424,10 +462,37 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
     }
     
     private void addLocalMessage(String text, boolean isSent) {
+        Log.d(TAG, "addLocalMessage() called");
+        Log.d(TAG, "Text: '" + text + "'");
+        Log.d(TAG, "isSent: " + isSent);
+        Log.d(TAG, "Current thread: " + Thread.currentThread().getName());
+        
+        if (text == null || text.trim().isEmpty()) {
+            Log.w(TAG, "Empty message text, skipping");
+            return;
+        }
+        
         Message message = new Message(text, isSent);
-        chatAdapter.addMessage(message);
-        // Delay scroll to ensure the item is added to the RecyclerView
-        recyclerViewMessages.postDelayed(this::scrollToBottom, 100);
+        Log.d(TAG, "Created message object: " + message.getText());
+        
+        if (chatAdapter != null) {
+            chatAdapter.addMessage(message);
+            Log.d(TAG, "Message added to adapter");
+            
+            // Notify adapter and scroll to bottom
+            requireActivity().runOnUiThread(() -> {
+                chatAdapter.notifyItemInserted(chatAdapter.getItemCount() - 1);
+                Log.d(TAG, "Adapter notified of new item");
+                
+                // Delay scroll to ensure the item is added to the RecyclerView
+                recyclerViewMessages.postDelayed(() -> {
+                    scrollToBottom();
+                    Log.d(TAG, "Scrolled to bottom");
+                }, 100);
+            });
+        } else {
+            Log.e(TAG, "chatAdapter is null, cannot add message");
+        }
     }
 
     private void scrollToBottom() {

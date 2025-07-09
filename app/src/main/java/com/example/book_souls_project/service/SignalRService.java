@@ -8,6 +8,10 @@ import com.microsoft.signalr.HttpHubConnectionBuilder;
 import com.microsoft.signalr.TransportEnum;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Single;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.example.book_souls_project.model.SignalRMessage;
+import java.util.Map;
 
 public class SignalRService {
     private static final String TAG = "SignalRService";
@@ -19,7 +23,7 @@ public class SignalRService {
     
     public interface SignalRMessageListener {
         void onMessageSent(String message);
-        void onMessageReceived(String message);
+        void onMessageReceived(SignalRMessage message);
         void onConnectionStateChanged(boolean isConnected);
         void onError(String error);
     }
@@ -61,7 +65,7 @@ public class SignalRService {
             
             // Configure transport to use WebSockets (like your React code)
             hubConnection = builder
-                    .withTransport(TransportEnum.WEBSOCKETS) // Equivalent to HttpTransportType.WebSockets
+                    .withTransport(TransportEnum.ALL) // Equivalent to HttpTransportType.WebSockets
                     .shouldSkipNegotiate(false) // Equivalent to skipNegotiation: false
                     .build();
                     
@@ -87,14 +91,87 @@ public class SignalRService {
             }
         }, String.class);
         
-        // Handle ReceiveMessage event (messages from others)
+        // Handle ReceiveMessage event (messages from others) - expecting full Message object
+        hubConnection.on("ReceiveMessage", (messageObj) -> {
+            Log.d(TAG, "ReceiveMessage received (Object): " + messageObj);
+            Log.d(TAG, "ReceiveMessage type: " + messageObj.getClass().getSimpleName());
+            
+            try {
+                SignalRMessage signalRMessage = null;
+                
+                if (messageObj instanceof Map) {
+                    // If it's a Map, convert to JSON and parse as SignalRMessage
+                    Gson gson = new Gson();
+                    String json = gson.toJson(messageObj);
+                    Log.d(TAG, "Converting Map to SignalRMessage, JSON: " + json);
+                    signalRMessage = gson.fromJson(json, SignalRMessage.class);
+                } else if (messageObj instanceof String) {
+                    // If it's a JSON string, parse directly
+                    Gson gson = new Gson();
+                    Log.d(TAG, "Parsing JSON string to SignalRMessage: " + messageObj);
+                    signalRMessage = gson.fromJson((String) messageObj, SignalRMessage.class);
+                } else {
+                    Log.w(TAG, "Unknown ReceiveMessage object type: " + messageObj.getClass());
+                    return;
+                }
+                
+                if (signalRMessage != null) {
+                    Log.d(TAG, "Successfully parsed SignalRMessage:");
+                    Log.d(TAG, "  - ID: " + signalRMessage.getId());
+                    Log.d(TAG, "  - ConversationId: " + signalRMessage.getConversationId());
+                    Log.d(TAG, "  - SenderId: " + signalRMessage.getSenderId());
+                    Log.d(TAG, "  - ReceiverId: " + signalRMessage.getReceiverId());
+                    Log.d(TAG, "  - Text: " + signalRMessage.getText());
+                    Log.d(TAG, "  - SentAt: " + signalRMessage.getSentAt());
+                    
+                    if (messageListener != null) {
+                        Log.d(TAG, "Calling messageListener.onMessageReceived() with SignalRMessage");
+                        messageListener.onMessageReceived(signalRMessage);
+                    } else {
+                        Log.w(TAG, "messageListener is null, cannot deliver ReceiveMessage");
+                    }
+                } else {
+                    Log.e(TAG, "Failed to parse SignalRMessage from received object");
+                }
+                
+            } catch (JsonSyntaxException e) {
+                Log.e(TAG, "Error parsing ReceiveMessage JSON", e);
+                if (messageListener != null) {
+                    messageListener.onError("Failed to parse incoming message: " + e.getMessage());
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Unexpected error handling ReceiveMessage", e);
+                if (messageListener != null) {
+                    messageListener.onError("Error processing incoming message: " + e.getMessage());
+                }
+            }
+        }, Object.class);
+        
+        // Fallback: Handle ReceiveMessage as String (for backward compatibility)
         hubConnection.on("ReceiveMessage", (message) -> {
-            Log.d(TAG, "ReceiveMessage received: " + message);
-            if (messageListener != null) {
-                messageListener.onMessageReceived(message);
+            Log.d(TAG, "ReceiveMessage received (String fallback): " + message);
+            
+            try {
+                Gson gson = new Gson();
+                SignalRMessage signalRMessage = gson.fromJson(message, SignalRMessage.class);
+                
+                if (signalRMessage != null && messageListener != null) {
+                    Log.d(TAG, "Successfully parsed SignalRMessage from string fallback");
+                    messageListener.onMessageReceived(signalRMessage);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error parsing ReceiveMessage string fallback", e);
+                // Create a basic SignalRMessage from the string if JSON parsing fails
+                if (messageListener != null) {
+                    SignalRMessage basicMessage = new SignalRMessage();
+                    basicMessage.setText(message);
+                    basicMessage.setSentAt(String.valueOf(System.currentTimeMillis()));
+                    Log.d(TAG, "Created basic SignalRMessage from string: " + message);
+                    messageListener.onMessageReceived(basicMessage);
+                }
             }
         }, String.class);
-        
+
         // Handle ReceiveException event (server errors)
         hubConnection.on("ReceiveException", (errorMessage) -> {
             Log.e(TAG, "ReceiveException from server: " + errorMessage);
@@ -250,6 +327,38 @@ public class SignalRService {
                         messageListener.onError("Alternative send failed: " + exception.getMessage());
                     }
                 });
+    }
+    
+    // Method to test server method signature
+    public void testServerMethods() {
+        if (hubConnection == null || hubConnection.getConnectionState() != HubConnectionState.CONNECTED) {
+            Log.w(TAG, "Cannot test methods: not connected to hub");
+            return;
+        }
+        
+        Log.d(TAG, "Testing server method signatures...");
+        
+        // Test if we can call a simple method first
+        try {
+            hubConnection.invoke("GetConnectionId")
+                    .subscribe(
+                        () -> Log.d(TAG, "GetConnectionId method exists"),
+                        error -> Log.d(TAG, "GetConnectionId method not available: " + error.getMessage())
+                    );
+        } catch (Exception e) {
+            Log.d(TAG, "Exception testing GetConnectionId: " + e.getMessage());
+        }
+        
+        // Test sending a simple message to see server response
+        try {
+            hubConnection.invoke("SendMessage", "test", "test", "test", "Test message from Android")
+                    .subscribe(
+                        () -> Log.d(TAG, "Test SendMessage completed successfully"),
+                        error -> Log.d(TAG, "Test SendMessage failed: " + error.getMessage())
+                    );
+        } catch (Exception e) {
+            Log.d(TAG, "Exception testing SendMessage: " + e.getMessage());
+        }
     }
     
     public boolean isConnected() {
