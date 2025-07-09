@@ -1,6 +1,11 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
 }
+
+val googleMapApiKey: String = gradleLocalProperties(rootDir, providers).getProperty("google_map_api_key", "")
+val apiClientUrl: String = gradleLocalProperties(rootDir, providers).getProperty("api_client_url", "")
 
 android {
     namespace = "com.example.book_souls_project"
@@ -8,12 +13,16 @@ android {
 
     defaultConfig {
         applicationId = "com.example.book_souls_project"
-        minSdk = 35
+        minSdk = 34
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders["google_map_api_key"] = googleMapApiKey
+
+        resValue("string", "api_client_url", apiClientUrl)
     }
 
     buildTypes {
@@ -50,8 +59,11 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // Retrofit & Networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // Google Maps
     implementation("com.google.android.gms:play-services-location:21.0.1")

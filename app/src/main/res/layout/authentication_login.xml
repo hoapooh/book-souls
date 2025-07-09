@@ -15,7 +15,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbars="none"
+        android:fadeScrollbars="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -147,7 +149,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <!-- Remember Me and Forgot Password -->
-                    <LinearLayout
+                    <!--<LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
@@ -181,7 +183,7 @@
                             android:background="?android:attr/selectableItemBackground"
                             android:padding="8dp" />
 
-                    </LinearLayout>
+                    </LinearLayout>-->
 
                     <!-- Login Button -->
                     <com.google.android.material.button.MaterialButton
