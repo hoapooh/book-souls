@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 destinationId == R.id.navigation_profile) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
             } else {
-                // Hide for login and signup fragments
+                // Hide for login, signup, chat, and other fragments
                 bottomNavigationView.setVisibility(View.GONE);
             }
         });

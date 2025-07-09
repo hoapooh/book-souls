@@ -396,7 +396,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/ic_help"
+                            android:src="@drawable/ic_chat"
                             app:tint="@color/primary_color" />
 
                         <TextView
@@ -404,7 +404,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginStart="16dp"
-                            android:text="Help &amp; Support"
+                            android:text="Chat to gain support"
                             android:textColor="@color/text_primary"
                             android:textSize="16sp" />
 

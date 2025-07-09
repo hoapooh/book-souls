@@ -61,6 +61,9 @@
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
+            android:id="@+id/action_profileFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+        <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
@@ -87,4 +90,10 @@
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile">
     </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.book_souls_project.fragment.chat.ChatFragment"
+        android:label="Support Chat"
+        tools:layout="@layout/fragment_chat" />
 </navigation>
