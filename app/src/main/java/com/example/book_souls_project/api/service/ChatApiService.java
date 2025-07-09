@@ -7,13 +7,12 @@ import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Path;
 
-public interface ChatService {
-    String CHAT = "chat";
-
-    @GET(CHAT + "/conversations")
+public interface ChatApiService {
+    
+    @GET("/api/chat/conversations")
     Call<ConversationResponse> getConversations(@Header("Authorization") String authToken);
     
-    @GET(CHAT + "/{conversationId}/messages")
+    @GET("/api/chat/{conversationId}/messages")
     Call<MessageResponse> getMessages(
         @Header("Authorization") String authToken,
         @Path("conversationId") String conversationId

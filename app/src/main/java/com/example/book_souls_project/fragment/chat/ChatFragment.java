@@ -22,8 +22,15 @@ import com.example.book_souls_project.adapter.ChatAdapter;
 import com.example.book_souls_project.model.Message;
 import com.example.book_souls_project.service.SignalRService;
 import com.example.book_souls_project.util.TokenManager;
+import com.example.book_souls_project.api.client.ChatApiClient;
+import com.example.book_souls_project.api.types.chat.Conversation;
+import com.example.book_souls_project.api.types.chat.ChatMessage;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Locale;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 
@@ -44,6 +51,10 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
     private TokenManager tokenManager;
     private String currentUserId;
     private String supportUserId = "6859967a692e46a7b67c0123"; // Fixed support user ID
+    
+    // Chat API and conversation management
+    private ChatApiClient chatApiClient;
+    private String currentConversationId;
     
     // RxJava disposables for proper memory management
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
@@ -72,11 +83,11 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
         setupRecyclerView();
         setupClickListeners();
         
-        // Initialize SignalR
-        initializeSignalR();
+        // Initialize API client
+        chatApiClient = new ChatApiClient(requireContext());
         
-        // Load initial welcome message
-        loadInitialMessages();
+        // Load conversation and messages first, then initialize SignalR
+        loadConversationAndMessages();
     }
 
     private void initViews(View view) {
@@ -123,10 +134,114 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
         });
     }
 
-    private void loadInitialMessages() {
+    private void loadConversationAndMessages() {
+        Log.d(TAG, "Loading conversation and messages...");
+        
+        // Show loading indicator
+        // You can add a progress bar here if needed
+        
+        // First, get the conversation list
+        chatApiClient.getConversations(new ChatApiClient.ConversationCallback() {
+            @Override
+            public void onSuccess(List<Conversation> conversations) {
+                requireActivity().runOnUiThread(() -> {
+                    if (conversations != null && !conversations.isEmpty()) {
+                        // Get the first conversation (since user only chats with support)
+                        Conversation firstConversation = conversations.get(0);
+                        currentConversationId = firstConversation.getConversationId();
+                        
+                        Log.d(TAG, "Found conversation ID: " + currentConversationId);
+                        
+                        // Load messages for this conversation
+                        loadMessagesForConversation(currentConversationId);
+                    } else {
+                        Log.d(TAG, "No existing conversations found, will create new one when sending first message");
+                        // No existing conversation, show welcome message and initialize SignalR
+                        loadWelcomeMessage();
+                        initializeSignalR();
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(String errorMessage) {
+                requireActivity().runOnUiThread(() -> {
+                    Log.e(TAG, "Error loading conversations: " + errorMessage);
+                    // Show welcome message and initialize SignalR anyway
+                    loadWelcomeMessage();
+                    initializeSignalR();
+                });
+            }
+        });
+    }
+    
+    private void loadMessagesForConversation(String conversationId) {
+        Log.d(TAG, "Loading messages for conversation: " + conversationId);
+        
+        chatApiClient.getMessages(conversationId, new ChatApiClient.MessageCallback() {
+            @Override
+            public void onSuccess(List<ChatMessage> chatMessages) {
+                requireActivity().runOnUiThread(() -> {
+                    // Clear any existing messages
+                    messages.clear();
+                    
+                    if (chatMessages != null && !chatMessages.isEmpty()) {
+                        // Convert API messages to UI messages
+                        for (ChatMessage chatMessage : chatMessages) {
+                            boolean isSent = chatMessage.getSenderId().equals(currentUserId);
+                            long timestamp = parseTimestamp(chatMessage.getSentAt());
+                            
+                            Message message = new Message(chatMessage.getText(), isSent, timestamp);
+                            messages.add(message);
+                        }
+                        
+                        Log.d(TAG, "Loaded " + messages.size() + " messages from API");
+                        chatAdapter.notifyDataSetChanged();
+                        scrollToBottom();
+                    } else {
+                        Log.d(TAG, "No messages found in conversation");
+                    }
+                    
+                    // Add welcome message if no messages exist
+                    if (messages.isEmpty()) {
+                        loadWelcomeMessage();
+                    }
+                    
+                    // Initialize SignalR after loading messages
+                    initializeSignalR();
+                });
+            }
+            
+            @Override
+            public void onError(String errorMessage) {
+                requireActivity().runOnUiThread(() -> {
+                    Log.e(TAG, "Error loading messages: " + errorMessage);
+                    Toast.makeText(requireContext(), "Error loading messages: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    
+                    // Show welcome message and initialize SignalR anyway
+                    loadWelcomeMessage();
+                    initializeSignalR();
+                });
+            }
+        });
+    }
+    
+    private void loadWelcomeMessage() {
         // Add some initial messages to simulate a conversation
         addLocalMessage("Hello! Welcome to BookSouls Support. How can I help you today?", false);
         addLocalMessage("I'm here to assist you with any questions about books, orders, or technical issues.", false);
+    }
+    
+    private long parseTimestamp(String timestamp) {
+        try {
+            // Parse ISO 8601 timestamp: "2025-07-09T18:46:48.838Z"
+            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            Date date = isoFormat.parse(timestamp);
+            return date != null ? date.getTime() : System.currentTimeMillis();
+        } catch (ParseException e) {
+            Log.e(TAG, "Error parsing timestamp: " + timestamp, e);
+            return System.currentTimeMillis();
+        }
     }
     
     private void initializeSignalR() {
@@ -263,10 +378,11 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
             Log.d(TAG, "Attempting to send message via SignalR");
             Log.d(TAG, "Current user ID: " + currentUserId);
             Log.d(TAG, "Support user ID: " + supportUserId);
+            Log.d(TAG, "Conversation ID: " + currentConversationId);
             Log.d(TAG, "Message text: " + messageText);
             
             Disposable sendDisposable = signalRService.sendMessage(
-                null, // conversationId (null as requested)
+                currentConversationId, // Use the actual conversation ID
                 currentUserId, // senderId
                 supportUserId, // receiverId
                 messageText // text
