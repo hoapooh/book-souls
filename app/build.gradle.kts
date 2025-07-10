@@ -71,6 +71,8 @@ dependencies {
     // Image Loading
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    // SignalR for real-time communication
+    implementation("com.microsoft.signalr:signalr:8.0.0")
     
     // Google Maps
     implementation("com.google.android.gms:play-services-location:21.0.1")
