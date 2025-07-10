@@ -118,7 +118,7 @@ public class ProfileFragment extends Fragment {
         });
 
         layoutSupport.setOnClickListener(v -> {
-            // TODO: Navigate to Help & Support
+            Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_chatFragment);
         });
 
         layoutLogout.setOnClickListener(v -> {

@@ -65,6 +65,9 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
+    // SignalR for real-time communication
+    implementation("com.microsoft.signalr:signalr:8.0.0")
+    
     // Google Maps
     implementation("com.google.android.gms:play-services-location:21.0.1")
 }
