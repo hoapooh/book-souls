@@ -1,9 +1,11 @@
 package com.example.book_souls_project.api.service;
 
+import com.example.book_souls_project.api.types.book.BookDetailResponse;
 import com.example.book_souls_project.api.types.book.BookListResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface BookService {
@@ -12,6 +14,10 @@ public interface BookService {
     // Get all books without pagination
     @GET(BOOKS)
     Call<BookListResponse> getBooks();
+
+    // Get book by ID
+    @GET(BOOKS + "/{id}")
+    Call<BookDetailResponse> getBookById(@Path("id") String bookId);
 
     // Search books with optional search parameter
     @GET(BOOKS)

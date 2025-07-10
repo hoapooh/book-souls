@@ -1,22 +1,52 @@
 package com.example.book_souls_project.api.types.book;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class Book {
+    @SerializedName("id")
     private String id;
+    
+    @SerializedName("title")
     private String title;
+    
+    @SerializedName("description")
+    private String description;
+    
+    @SerializedName("author")
     private String author;
+    
+    @SerializedName("isbn")
     private String isbn;
+    
+    @SerializedName("publisherId")
     private String publisherId;
+    
+    @SerializedName("categoryIds")
     private List<String> categoryIds;
+    
+    @SerializedName("releaseYear")
     private int releaseYear;
-    private boolean isStricted;
+    
+    @SerializedName("price")
     private int price;
+    
+    @SerializedName("stock")
     private int stock;
+    
+    @SerializedName("image")
     private String image;
+    
+    @SerializedName("rating")
     private float rating;
+    
+    @SerializedName("ratingCount")
     private int ratingCount;
+    
+    @SerializedName("createdAt")
     private String createdAt;
+    
+    @SerializedName("updatedAt")
     private String updatedAt;
 
     // Getters and Setters
@@ -25,6 +55,9 @@ public class Book {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getAuthor() { return author; }
     public void setAuthor(String author) { this.author = author; }
@@ -40,9 +73,6 @@ public class Book {
 
     public int getReleaseYear() { return releaseYear; }
     public void setReleaseYear(int releaseYear) { this.releaseYear = releaseYear; }
-
-    public boolean isStricted() { return isStricted; }
-    public void setStricted(boolean stricted) { isStricted = stricted; }
 
     public int getPrice() { return price; }
     public void setPrice(int price) { this.price = price; }
