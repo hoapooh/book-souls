@@ -1,9 +1,13 @@
 package com.example.book_souls_project.api.types.publisher;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class PublisherListResponse {
+    @SerializedName("message")
     private String message;
+    
+    @SerializedName("result")
     private PublisherResult result;
 
     public String getMessage() {
@@ -23,7 +27,10 @@ public class PublisherListResponse {
     }
 
     public static class PublisherResult {
+        @SerializedName("items")
         private List<Publisher> items;
+        
+        @SerializedName("totalCount")
         private int totalCount;
 
         public List<Publisher> getItems() {

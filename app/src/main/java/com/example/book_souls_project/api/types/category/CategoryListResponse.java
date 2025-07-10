@@ -1,9 +1,13 @@
 package com.example.book_souls_project.api.types.category;
 
+import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class CategoryListResponse {
+    @SerializedName("message")
     private String message;
+    
+    @SerializedName("result")
     private Result result;
 
     // Constructors
@@ -22,7 +26,10 @@ public class CategoryListResponse {
     public void setResult(Result result) { this.result = result; }
 
     public static class Result {
+        @SerializedName("items")
         private List<Category> items;
+        
+        @SerializedName("totalCount")
         private int totalCount;
 
         public List<Category> getItems() { return items; }

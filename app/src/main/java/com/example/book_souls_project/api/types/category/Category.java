@@ -1,10 +1,21 @@
 package com.example.book_souls_project.api.types.category;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Category {
+    @SerializedName("id")
     private String id;
+    
+    @SerializedName("name")
     private String name;
+    
+    @SerializedName("description")
     private String description;
+    
+    @SerializedName("createdAt")
     private String createdAt;
+    
+    @SerializedName("updatedAt")
     private String updatedAt;
 
     // Constructors

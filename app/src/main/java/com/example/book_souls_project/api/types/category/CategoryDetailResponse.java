@@ -1,7 +1,12 @@
 package com.example.book_souls_project.api.types.category;
 
+import com.google.gson.annotations.SerializedName;
+
 public class CategoryDetailResponse {
+    @SerializedName("message")
     private String message;
+    
+    @SerializedName("result")
     private Category result;
 
     // Constructors

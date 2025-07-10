@@ -53,7 +53,6 @@ public class BookDetailFragment extends Fragment {
     private TextView textReleaseYear;
     private TextView textStock;
     private TextView textIsbn;
-    private TextView textRestricted;
     private TextView textSynopsis;
     private LinearLayout layoutIsbn;
     private MaterialButton buttonAddToCart;
@@ -131,7 +130,6 @@ public class BookDetailFragment extends Fragment {
         textReleaseYear = view.findViewById(R.id.textReleaseYear);
         textStock = view.findViewById(R.id.textStock);
         textIsbn = view.findViewById(R.id.textIsbn);
-        textRestricted = view.findViewById(R.id.textRestricted);
         textSynopsis = view.findViewById(R.id.textSynopsis);
         layoutIsbn = view.findViewById(R.id.layoutIsbn);
         buttonAddToCart = view.findViewById(R.id.buttonAddToCart);
@@ -258,20 +256,15 @@ public class BookDetailFragment extends Fragment {
             layoutIsbn.setVisibility(View.GONE);
         }
         
-        // Set access restriction status
-        if (book.isStricted()) {
-            textRestricted.setText("Restricted Access");
-            textRestricted.setTextColor(getResources().getColor(R.color.error_color, null));
+        // Set synopsis using book description or fallback text
+        if (book.getDescription() != null && !book.getDescription().isEmpty()) {
+            textSynopsis.setText(book.getDescription());
         } else {
-            textRestricted.setText("Public Access");
-            textRestricted.setTextColor(getResources().getColor(R.color.success_color, null));
+            textSynopsis.setText("Discover this amazing book by " + book.getAuthor() + 
+                ". Published in " + book.getReleaseYear() + 
+                ", this book offers valuable insights and knowledge in its field. " +
+                "Experience quality content that has been carefully curated for readers.");
         }
-        
-        // Set synopsis (placeholder text for now as API doesn't provide description)
-        textSynopsis.setText("Discover this amazing book by " + book.getAuthor() + 
-            ". Published in " + book.getReleaseYear() + 
-            ", this book offers valuable insights and knowledge in its field. " +
-            "Experience quality content that has been carefully curated for readers.");
         
         // Load book cover image
         if (book.getImage() != null && !book.getImage().isEmpty()) {

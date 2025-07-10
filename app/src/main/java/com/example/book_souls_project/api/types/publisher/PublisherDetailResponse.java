@@ -1,7 +1,12 @@
 package com.example.book_souls_project.api.types.publisher;
 
+import com.google.gson.annotations.SerializedName;
+
 public class PublisherDetailResponse {
+    @SerializedName("message")
     private String message;
+    
+    @SerializedName("result")
     private Publisher result;
 
     public String getMessage() {
