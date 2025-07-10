@@ -46,9 +46,7 @@
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_user"
-                            android:background="@color/background_card"
-                            android:padding="20dp"
-                            app:tint="@color/text_secondary" />
+                            android:background="@color/background_secondary" />
 
                     </androidx.cardview.widget.CardView>
 

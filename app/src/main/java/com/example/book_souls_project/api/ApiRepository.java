@@ -22,6 +22,7 @@ public class ApiRepository {
     private BookRepository bookRepository;
     private CategoryRepository categoryRepository;
     private PublisherRepository publisherRepository;
+    private UserRepository userRepository;
 
     private ApiRepository(Context context) {
         this.context = context.getApplicationContext();

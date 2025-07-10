@@ -266,4 +266,45 @@ public class ImageUtils {
             Log.d("ImageUtils", "DEBUG: Simple Cloudinary URL: " + simpleUrl);
         }
     }
+    
+    /**
+     * Simple profile image loading without URL decoding - works like BookDetailFragment
+     */
+    public static void loadProfileImageSimple(Context context, String imageUrl, ImageView imageView) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            imageView.setImageResource(R.drawable.ic_user);
+            return;
+        }
+
+        Log.d("ImageUtils", "Loading profile image (simple): " + imageUrl);
+        
+        RequestOptions options = new RequestOptions()
+            .placeholder(R.drawable.ic_user)
+            .error(R.drawable.ic_user)
+            .centerCrop()
+            .diskCacheStrategy(DiskCacheStrategy.ALL); // Use caching like BookDetailFragment
+
+        // Load image directly without URL decoding - same as BookDetailFragment
+        Glide.with(context)
+            .load(imageUrl)
+            .apply(options)
+            .listener(new com.bumptech.glide.request.RequestListener<android.graphics.drawable.Drawable>() {
+                @Override
+                public boolean onLoadFailed(com.bumptech.glide.load.engine.GlideException e, Object model, 
+                                          com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, 
+                                          boolean isFirstResource) {
+                    Log.e("ImageUtils", "Failed to load profile image from: " + model, e);
+                    return false; // Let Glide show error drawable
+                }
+
+                @Override
+                public boolean onResourceReady(android.graphics.drawable.Drawable resource, Object model, 
+                                             com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, 
+                                             com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
+                    Log.d("ImageUtils", "Successfully loaded profile image from: " + model);
+                    return false;
+                }
+            })
+            .into(imageView);
+    }
 }

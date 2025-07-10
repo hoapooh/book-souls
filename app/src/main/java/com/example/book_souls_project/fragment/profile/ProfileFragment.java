@@ -203,8 +203,8 @@ public class ProfileFragment extends Fragment {
             textUserEmail.setText("user@booksouls.com");
         }
 
-        // Load avatar using ImageUtils for better handling
-        ImageUtils.loadProfileImage(requireContext(), userProfile.getAvatar(), imageProfilePicture);
+        // Load avatar using simple method like BookDetailFragment
+        ImageUtils.loadProfileImageSimple(requireContext(), userProfile.getAvatar(), imageProfilePicture);
     }
 
     /**
@@ -232,7 +232,7 @@ public class ProfileFragment extends Fragment {
 
             // Load avatar from token manager using ImageUtils
             String avatarUrl = tokenManager.getUserAvatar();
-            ImageUtils.loadProfileImage(requireContext(), avatarUrl, imageProfilePicture);
+            ImageUtils.loadProfileImageSimple(requireContext(), avatarUrl, imageProfilePicture);
         }
     }
     
