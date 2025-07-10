@@ -18,19 +18,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.book_souls_project.MainActivity;
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
+import com.example.book_souls_project.api.repository.UserRepository;
+import com.example.book_souls_project.api.types.user.UserProfile;
+import com.example.book_souls_project.util.ImageUtils;
 import com.example.book_souls_project.util.TokenManager;
 
 public class ProfileFragment extends Fragment {
 
     private ProfileViewModel mViewModel;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
     private TokenManager tokenManager;
     
     // UI Components
+    private LinearLayout layoutViewProfile;
     private LinearLayout layoutMyOrders;
     private LinearLayout layoutWishlist;
     private LinearLayout layoutReadingHistory;
@@ -53,6 +59,7 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         // Initialize repositories and managers
         authRepository = ApiRepository.getInstance(requireContext()).getAuthRepository();
+        userRepository = ApiRepository.getInstance(requireContext()).getUserRepository();
         tokenManager = new TokenManager(requireContext());
 
         return inflater.inflate(R.layout.fragment_profile, container, false);
@@ -87,6 +94,7 @@ public class ProfileFragment extends Fragment {
         textUserEmail = view.findViewById(R.id.textUserEmail);
         
         // Menu layouts
+        layoutViewProfile = view.findViewById(R.id.layoutViewProfile);
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
         layoutWishlist = view.findViewById(R.id.layoutWishlist);
         layoutReadingHistory = view.findViewById(R.id.layoutReadingHistory);
@@ -97,6 +105,10 @@ public class ProfileFragment extends Fragment {
     }
 
     private void setupClickListeners() {
+        layoutViewProfile.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_viewProfileFragment);
+        });
+
         layoutMyOrders.setOnClickListener(v -> {
             // TODO: Navigate to My Orders
         });
@@ -137,9 +149,68 @@ public class ProfileFragment extends Fragment {
     }
     
     /**
-     * Load user profile information from TokenManager
+     * Load user profile information from API
      */
     private void loadUserProfile() {
+        if (!tokenManager.isLoggedIn()) {
+            return;
+        }
+
+        userRepository.getUserProfile(new UserRepository.UserProfileCallback() {
+            @Override
+            public void onUserProfileLoaded(UserProfile userProfile) {
+                updateUIWithUserProfile(userProfile);
+            }
+
+            @Override
+            public void onUserProfileUpdated(UserProfile userProfile) {
+                // Not used in this context
+            }
+
+            @Override
+            public void onError(String error) {
+                // Fallback to token manager data if API fails
+                loadUserProfileFromToken();
+                Toast.makeText(getContext(), "Could not load latest profile data", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onLoading() {
+                // Show loading indicator if needed
+            }
+        });
+    }
+
+    /**
+     * Update UI with user profile data
+     */
+    private void updateUIWithUserProfile(UserProfile userProfile) {
+        if (userProfile == null) {
+            loadUserProfileFromToken();
+            return;
+        }
+
+        // Update UI with user info
+        if (userProfile.getFullName() != null && !userProfile.getFullName().isEmpty()) {
+            textUserName.setText(userProfile.getFullName());
+        } else {
+            textUserName.setText("User");
+        }
+
+        if (userProfile.getEmail() != null && !userProfile.getEmail().isEmpty()) {
+            textUserEmail.setText(userProfile.getEmail());
+        } else {
+            textUserEmail.setText("user@booksouls.com");
+        }
+
+        // Load avatar using ImageUtils for better handling
+        ImageUtils.loadProfileImage(requireContext(), userProfile.getAvatar(), imageProfilePicture);
+    }
+
+    /**
+     * Fallback method to load user profile from token manager
+     */
+    private void loadUserProfileFromToken() {
         if (tokenManager.isLoggedIn()) {
             String userName = tokenManager.getUserName();
             String userEmail = tokenManager.getUserId(); // Assuming userId is email or get email separately
@@ -159,11 +230,9 @@ public class ProfileFragment extends Fragment {
                 textUserEmail.setText("user@booksouls.com");
             }
 
-            // TODO: Load avatar using image loading library like Glide or Picasso
-            // String avatarUrl = tokenManager.getUserAvatar();
-            // if (avatarUrl != null && !avatarUrl.isEmpty()) {
-            //     Glide.with(this).load(avatarUrl).into(imageProfilePicture);
-            // }
+            // Load avatar from token manager using ImageUtils
+            String avatarUrl = tokenManager.getUserAvatar();
+            ImageUtils.loadProfileImage(requireContext(), avatarUrl, imageProfilePicture);
         }
     }
     

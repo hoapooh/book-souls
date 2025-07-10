@@ -1,6 +1,7 @@
 package com.example.book_souls_project.api.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.book_souls_project.api.ApiClient;
 import com.example.book_souls_project.util.TokenManager;
@@ -29,25 +30,40 @@ public abstract class BaseRepository {
     protected <T> void executeCall(Call<T> call, ApiCallback<T> callback) {
         callback.onLoading();
         
+        Log.d("BaseRepository", "Making API call to: " + call.request().url());
+        
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
+                Log.d("BaseRepository", "Response code: " + response.code());
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d("BaseRepository", "API call successful");
                     callback.onSuccess(response.body());
                 } else {
                     String errorMessage = getErrorMessage(response);
+                    Log.e("BaseRepository", "API call failed: " + errorMessage);
                     callback.onError(errorMessage);
                 }
             }
 
             @Override
             public void onFailure(Call<T> call, Throwable t) {
+                Log.e("BaseRepository", "Network error: " + t.getMessage(), t);
                 callback.onError("Network error: " + t.getMessage());
             }
         });
     }
 
     private <T> String getErrorMessage(Response<T> response) {
+        try {
+            if (response.errorBody() != null) {
+                String errorBody = response.errorBody().string();
+                Log.e("BaseRepository", "Error body: " + errorBody);
+            }
+        } catch (Exception e) {
+            Log.e("BaseRepository", "Error parsing error body", e);
+        }
+        
         switch (response.code()) {
             case 400:
                 return "Bad request - Please check your input";

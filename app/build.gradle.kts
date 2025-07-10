@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.book_souls_project"
-        minSdk = 34
+        minSdk = 31
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -64,6 +64,10 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    
+    // Image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     
     // SignalR for real-time communication
     implementation("com.microsoft.signalr:signalr:8.0.0")
