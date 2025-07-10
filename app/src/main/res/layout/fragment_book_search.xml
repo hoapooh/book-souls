@@ -41,7 +41,7 @@
                 android:layout_weight="1"
                 android:layout_marginHorizontal="12dp"
                 android:background="@android:color/transparent"
-                android:hint="Search for books, authors, genres..."
+                android:hint="Search for books..."
                 android:textColorHint="@color/text_hint"
                 android:textSize="16sp"
                 android:padding="8dp" />
@@ -76,40 +76,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="All"
+            android:textColor="@android:color/white"
             android:checked="true"
+            app:checkedIcon="@drawable/ic_check"
+            app:checkedIconVisible="true"
+            app:checkedIconSize="24dp"
+            app:checkedIconMargin="12dp"
+            app:checkedIconTint="@android:color/white"
             app:chipBackgroundColor="@color/primary_color" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipFiction"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fiction"
-            app:chipBackgroundColor="@color/primary_color" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipNonFiction"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Non-Fiction"
-            app:chipBackgroundColor="@color/primary_color" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipMystery"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Mystery"
-            app:chipBackgroundColor="@color/primary_color" />
-
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chipRomance"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Romance"
-            app:chipBackgroundColor="@color/primary_color" />
+        <!-- Category chips will be added dynamically from API data -->
 
     </com.google.android.material.chip.ChipGroup>
 
