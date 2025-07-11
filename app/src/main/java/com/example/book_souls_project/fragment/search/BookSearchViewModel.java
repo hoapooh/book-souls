@@ -72,11 +72,17 @@ public class BookSearchViewModel extends AndroidViewModel {
     
     // Category selection methods
     public void toggleCategorySelection(String categoryId) {
+        // Log the change for debugging
+        Log.d(TAG, "Toggling category selection: " + categoryId);
+        Log.d(TAG, "Before toggle - Selected categories: " + selectedCategoryIds.toString());
+        
         if (selectedCategoryIds.contains(categoryId)) {
             selectedCategoryIds.remove(categoryId);
         } else {
             selectedCategoryIds.add(categoryId);
         }
+        
+        Log.d(TAG, "After toggle - Selected categories: " + selectedCategoryIds.toString());
         
         // Re-run search with updated categories
         if (!currentSearchQuery.isEmpty() || !selectedCategoryIds.isEmpty()) {
@@ -86,6 +92,10 @@ public class BookSearchViewModel extends AndroidViewModel {
     
     public boolean isCategorySelected(String categoryId) {
         return selectedCategoryIds.contains(categoryId);
+    }
+    
+    public Set<String> getSelectedCategoryIds() {
+        return selectedCategoryIds;
     }
     
     public void clearCategorySelections() {

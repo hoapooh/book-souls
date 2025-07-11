@@ -68,21 +68,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchCard"
-        app:singleSelection="false">
+        app:singleSelection="false"
+        app:chipSpacingHorizontal="8dp">
 
         <com.google.android.material.chip.Chip
             android:id="@+id/chipAll"
-            style="@style/Widget.MaterialComponents.Chip.Filter"
+            style="@style/Widget.MaterialComponents.Chip.Action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="All"
             android:textColor="@android:color/white"
             android:checked="true"
-            app:checkedIcon="@drawable/ic_check"
-            app:checkedIconVisible="true"
-            app:checkedIconSize="24dp"
-            app:checkedIconMargin="12dp"
-            app:checkedIconTint="@android:color/white"
+            android:clickable="true"
+            android:checkable="true"
             app:chipBackgroundColor="@color/primary_color" />
 
         <!-- Category chips will be added dynamically from API data -->

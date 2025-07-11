@@ -92,15 +92,17 @@ public class BookRepository extends BaseRepository {
                 // Add CategoryIds multiple times (one for each category)
                 for (int i = 0; i < categoryCount; i++) {
                     String categoryId = queryParams.get("CategoryIds" + i);
-                    urlBuilder.append("CategoryIds=").append(categoryId);
-                    if (i < categoryCount - 1) {
-                        urlBuilder.append("&");
+                    if (categoryId != null && !categoryId.isEmpty()) {
+                        urlBuilder.append("CategoryIds=").append(categoryId);
+                        if (i < categoryCount - 1) {
+                            urlBuilder.append("&");
+                        }
                     }
                 }
                 
                 // Use the advanced search with our built URL
                 String url = urlBuilder.toString();
-                Log.d("BookRepository", "Search URL: " + url);
+                Log.d("BookRepository", "Search URL with categories: " + url);
                 
                 Call<BookListResponse> call = bookService.searchBooksAdvanced(url);
                 executeCall(call, new ApiCallback<BookListResponse>() {

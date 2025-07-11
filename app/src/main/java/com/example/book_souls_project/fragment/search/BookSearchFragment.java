@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class BookSearchFragment extends Fragment {
 
@@ -113,10 +114,9 @@ public class BookSearchFragment extends Fragment {
         emptyState = view.findViewById(R.id.emptyState);
         progressBar = view.findViewById(R.id.progressBar);
         
-        // Configure the "All" chip to ensure check icon is visible
-        chipAll.setCheckedIconVisible(true);
-        chipAll.setCheckedIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check));
-        chipAll.setCheckedIconTint(ColorStateList.valueOf(Color.WHITE));
+        // Make sure the All chip has a simple appearance that works
+        chipAll.setTextColor(Color.WHITE);
+        chipAll.setChipBackgroundColorResource(R.color.primary_color);
         
         // Initially set results text
         textResults.setText("Popular Books");
@@ -195,14 +195,30 @@ public class BookSearchFragment extends Fragment {
             return false;
         });
         
-        // All categories chip
+        // All categories chip - simple direct click handling
         chipAll.setOnClickListener(v -> {
-            // Clear all category selections
+            Log.d(TAG, "All chip clicked");
+            
+            // Set state
             chipAll.setChecked(true);
+            
+            // Clear other chips
             for (Chip chip : categoryChips.values()) {
                 chip.setChecked(false);
             }
+            
+            // Clear category filter in viewModel
             viewModel.clearCategorySelections();
+            Log.d(TAG, "All chip selected, cleared category selections");
+            
+            // Trigger appropriate search
+            String query = editTextSearch.getText().toString().trim();
+            if (!query.isEmpty()) {
+                viewModel.searchBooks(query);
+            } else {
+                viewModel.loadPopularBooks();
+                textResults.setText("Popular Books");
+            }
         });
     }
     
@@ -251,6 +267,8 @@ public class BookSearchFragment extends Fragment {
             return;
         }
         
+        Log.d(TAG, "Setting up " + categories.size() + " category chips");
+        
         // Add each category as a chip
         for (Category category : categories) {
             Chip chip = createCategoryChip(category);
@@ -260,41 +278,41 @@ public class BookSearchFragment extends Fragment {
     }
     
     private Chip createCategoryChip(Category category) {
-        // Create chip with the custom style we defined
-        Chip chip = new Chip(requireContext(), null, R.style.CategoryChipStyle);
-        chip.setText(category.getName());
+        // Create a new Chip with Filter style (explicitly use Filter style for proper selection behavior)
+        Chip chip = new Chip(requireContext());
         chip.setCheckable(true);
+        chip.setClickable(true);
         
-        // Set chip background color state list for the checked/unchecked states
-        int[][] states = new int[][] {
-            new int[] { android.R.attr.state_checked },  // checked state
-            new int[] { -android.R.attr.state_checked }  // unchecked state
-        };
+        // Set the text and appearance
+        chip.setText(category.getName());
+        chip.setTextColor(Color.WHITE);
         
-        int[] colors = new int[] {
-            getResources().getColor(R.color.primary_dark_color, null),  // darker color when checked
-            getResources().getColor(R.color.primary_color, null)       // normal color when unchecked
-        };
+        // Set the chip background color
+        chip.setChipBackgroundColorResource(R.color.primary_color);
         
-        ColorStateList colorStateList = new ColorStateList(states, colors);
-        chip.setChipBackgroundColor(colorStateList);
+        // Configure check icon
+        chip.setCheckedIconVisible(true);
         
-        // No close icon
-        chip.setCloseIconVisible(false);
-        
-        // Set click listener
-        chip.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        // Set click listener - simple direct approach
+        chip.setOnClickListener(v -> {
+            // Toggle checked state and handle selection
+            boolean isChecked = !chip.isChecked();
+            chip.setChecked(isChecked);
+            
+            Log.d(TAG, "Category chip " + category.getName() + " clicked, setting checked: " + isChecked);
+            
             if (isChecked) {
-                // Uncheck "All" chip when any other chip is checked
+                // Uncheck "All" chip
                 chipAll.setChecked(false);
                 
                 // Add this category to filter
                 viewModel.toggleCategorySelection(category.getId());
+                Log.d(TAG, "Added category to filter: " + category.getId());
             } else {
                 // Check if all category chips are unchecked
                 boolean anyChecked = false;
                 for (Chip c : categoryChips.values()) {
-                    if (c.isChecked()) {
+                    if (c != chip && c.isChecked()) {
                         anyChecked = true;
                         break;
                     }
@@ -304,9 +322,11 @@ public class BookSearchFragment extends Fragment {
                 if (!anyChecked) {
                     chipAll.setChecked(true);
                     viewModel.clearCategorySelections();
+                    Log.d(TAG, "All chips unchecked, clearing selections");
                 } else {
                     // Remove this category from filter
                     viewModel.toggleCategorySelection(category.getId());
+                    Log.d(TAG, "Removed category from filter: " + category.getId());
                 }
             }
         });
