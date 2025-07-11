@@ -33,6 +33,9 @@ public interface BookService {
     // Flexible search that supports any combination of query parameters
     @GET(BOOKS)
     Call<BookListResponse> getBooksByCategory(@Query("categoryId") String categoryId);
+    
+    // Flexible search that supports any combination of query parameters
+    @GET(BOOKS)
     Call<BookListResponse> searchBooksWithParams(@QueryMap Map<String, String> queryParams);
     
     // Advanced search that supports any query parameters with complete URL

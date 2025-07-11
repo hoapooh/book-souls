@@ -1,3 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Category Chip Style -->
+    <style name="CategoryChipStyle" parent="Widget.MaterialComponents.Chip.Filter">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="checkedIcon">@drawable/ic_check</item>
+        <item name="checkedIconVisible">true</item>
+        <item name="checkedIconTint">@android:color/white</item>
+        <item name="chipBackgroundColor">@color/primary_color</item>
+    </style>
 </resources>

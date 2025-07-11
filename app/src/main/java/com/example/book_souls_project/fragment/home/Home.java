@@ -7,16 +7,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.core.widget.NestedScrollView;
 
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.adapter.BookFeaturedAdapter;
@@ -26,7 +28,6 @@ import com.example.book_souls_project.api.repository.BookRepository;
 import com.example.book_souls_project.api.types.book.Book;
 import com.example.book_souls_project.api.types.book.BookListResponse;
 import com.example.book_souls_project.util.CartManager;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
@@ -36,12 +37,23 @@ public class Home extends Fragment {
     
     private HomeViewModel mViewModel;
     private Button buttonTestLogin;
-    private FloatingActionButton fabSearch;
     
     // RecyclerViews
     private RecyclerView recyclerViewFeatured;
     private RecyclerView recyclerViewRecent;
     private RecyclerView recyclerViewCategories;
+    
+    // UI Components for loading and empty states
+    private ProgressBar progressBar;
+    private LinearLayout emptyState;
+    private NestedScrollView contentScrollView;
+    
+    // UI Components for loading more indicator
+    private ProgressBar loadingMoreProgressBar;
+    private boolean isLoadingMore = false;
+    
+    // Pagination
+    private int limit = 10;
     
     // Adapters
     private BookFeaturedAdapter featuredAdapter;
@@ -81,7 +93,11 @@ public class Home extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        // Get limit value from ViewModel
+        limit = mViewModel.getLimit();
+        
         setupClickListeners();
+        setupScrollListener();
         observeViewModel();
         
         // Load books using ViewModel
@@ -92,50 +108,112 @@ public class Home extends Fragment {
         // Observe featured books
         mViewModel.getFeaturedBooks().observe(getViewLifecycleOwner(), books -> {
             if (books != null) {
-                Log.d(TAG, "Featured books updated: " + books.size() + " books");
                 featuredAdapter.setBooks(books);
+                
+                // Show/hide empty state for featured books
+                updateEmptyState(books);
             }
         });
         
         // Observe recent books
         mViewModel.getRecentBooks().observe(getViewLifecycleOwner(), books -> {
             if (books != null) {
-                Log.d(TAG, "Recent books updated: " + books.size() + " books");
                 recentAdapter.setBooks(books);
             }
         });
         
         // Observe loading state
         mViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            // TODO: Show/hide loading spinner
-            Log.d(TAG, "Loading state: " + isLoading);
+            // Show/hide loading spinner
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            
+            // Hide content when loading
+            if (isLoading) {
+                contentScrollView.setVisibility(View.GONE);
+                emptyState.setVisibility(View.GONE);
+            } else {
+                // Content visibility will be managed in the books observer
+                List<Book> featuredBooks = mViewModel.getFeaturedBooks().getValue();
+                updateEmptyState(featuredBooks);
+            }
+        });
+        
+        // Observe loading more state
+        mViewModel.getIsLoadingMore().observe(getViewLifecycleOwner(), isLoadingMore -> {
+            this.isLoadingMore = isLoadingMore;
+            loadingMoreProgressBar.setVisibility(isLoadingMore ? View.VISIBLE : View.GONE);
+            
+            // Update featured adapter loading state
+            featuredAdapter.setLoading(isLoadingMore);
         });
         
         // Observe error messages
         mViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null) {
-                Log.e(TAG, "Error: " + error);
                 Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
                 mViewModel.clearError();
             }
         });
     }
     
+    /**
+     * Update UI based on book list status
+     */
+    private void updateEmptyState(List<Book> books) {
+        if (books == null || books.isEmpty()) {
+            // No books to display
+            emptyState.setVisibility(View.VISIBLE);
+            contentScrollView.setVisibility(View.GONE);
+        } else {
+            // Books available
+            emptyState.setVisibility(View.GONE);
+            contentScrollView.setVisibility(View.VISIBLE);
+        }
+    }
+    
     private void initViews(View view) {
         buttonTestLogin = view.findViewById(R.id.buttonTestLogin);
-        fabSearch = view.findViewById(R.id.fabSearch);
         recyclerViewFeatured = view.findViewById(R.id.recyclerViewFeatured);
         recyclerViewRecent = view.findViewById(R.id.recyclerViewRecent);
         recyclerViewCategories = view.findViewById(R.id.recyclerViewCategories);
+        
+        // Initialize new UI components
+        progressBar = view.findViewById(R.id.progressBar);
+        emptyState = view.findViewById(R.id.emptyState);
+        contentScrollView = view.findViewById(R.id.contentScrollView);
+        loadingMoreProgressBar = view.findViewById(R.id.loadingMoreProgressBar);
     }
     
     private void setupRecyclerViews() {
         // Setup featured books RecyclerView (horizontal)
         featuredAdapter = new BookFeaturedAdapter();
-        recyclerViewFeatured.setLayoutManager(
-            new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
-        );
+        LinearLayoutManager featuredLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewFeatured.setLayoutManager(featuredLayoutManager);
         recyclerViewFeatured.setAdapter(featuredAdapter);
+        
+        // Add scroll listener to the featured books RecyclerView for horizontal pagination
+        recyclerViewFeatured.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                
+                // Check if scrolled to the end horizontally
+                if (!isLoadingMore && dx > 0) { // Scrolling right and not already loading
+                    int visibleItemCount = featuredLayoutManager.getChildCount();
+                    int totalItemCount = featuredLayoutManager.getItemCount();
+                    int firstVisibleItemPosition = featuredLayoutManager.findFirstVisibleItemPosition();
+                    int lastVisibleItemPosition = featuredLayoutManager.findLastVisibleItemPosition();
+                    
+                    // If last item is visible and we have at least one full page of items
+                    if (lastVisibleItemPosition >= totalItemCount - 3 && totalItemCount >= limit - 1) {
+                        // Load more books if there are more
+                        if (mViewModel.hasMoreData()) {
+                            loadMoreBooks();
+                        }
+                    }
+                }
+            }
+        });
         
         // Setup recent books RecyclerView (vertical)
         recentAdapter = new BookListAdapter();
@@ -159,17 +237,28 @@ public class Home extends Fragment {
         buttonTestLogin.setOnClickListener(v -> {
             NavHostFragment.findNavController(Home.this).navigate(R.id.action_Home_to_LoginFragment);
         });
-        
-        // Handle search FAB click
-        fabSearch.setOnClickListener(v -> {
-            // TODO: Navigate to search fragment
-            Toast.makeText(getContext(), "Search feature coming soon!", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void setupScrollListener() {
+        // Monitor scroll to load more when reaching bottom
+        contentScrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) 
+            (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY == (v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())) {
+                // User is at the bottom of the scroll view
+                if (mViewModel.hasMoreData() && !isLoadingMore) {
+                    loadMoreBooks();
+                }
+            }
         });
     }
     
+    private void loadMoreBooks() {
+        isLoadingMore = true;
+        loadingMoreProgressBar.setVisibility(View.VISIBLE);
+        mViewModel.loadMoreBooks();
+    }
+    
     private void onBookClick(Book book) {
-        Log.d(TAG, "Book clicked: " + book.getTitle());
-        
         // Navigate to book detail using Navigation Component
         Bundle args = new Bundle();
         args.putString("book_id", book.getId());
@@ -179,8 +268,6 @@ public class Home extends Fragment {
     }
     
     private void onAddToCartClick(Book book) {
-        Log.d(TAG, "Add to cart clicked: " + book.getTitle());
-        
         if (book.getStock() <= 0) {
             Toast.makeText(getContext(), "Sorry, " + book.getTitle() + " is out of stock!", Toast.LENGTH_SHORT).show();
             return;

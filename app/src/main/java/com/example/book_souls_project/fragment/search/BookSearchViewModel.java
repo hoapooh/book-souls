@@ -1,6 +1,7 @@
 package com.example.book_souls_project.fragment.search;
 
 import androidx.lifecycle.ViewModel;
+import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -23,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class BookSearchViewModel extends AndroidViewModel {
-    private static final String TAG = "BookSearchViewModel";
     
     private BookRepository bookRepository;
     private CategoryRepository categoryRepository;
@@ -42,9 +42,18 @@ public class BookSearchViewModel extends AndroidViewModel {
     
     // LiveData for loading states
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isLoadingMore = new MutableLiveData<>(false);
     
     // LiveData for error messages
     private MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    
+    // Pagination tracking
+    private int currentPageIndex = 1;
+    private int limit = 10;
+    private boolean hasMoreData = true;
+    
+    // Lists to accumulate books from different pages
+    private List<Book> allSearchResults = new ArrayList<>();
 
     public BookSearchViewModel(@NonNull Application application) {
         super(application);
@@ -65,23 +74,33 @@ public class BookSearchViewModel extends AndroidViewModel {
         return isLoading;
     }
 
+    public LiveData<Boolean> getIsLoadingMore() {
+        return isLoadingMore;
+    }
+    
     public LiveData<String> getErrorMessage() {
         return errorMessage;
     }
     
+    public boolean hasMoreData() {
+        return hasMoreData;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public String getCurrentSearchQuery() {
+        return currentSearchQuery;
+    }
+    
     // Category selection methods
     public void toggleCategorySelection(String categoryId) {
-        // Log the change for debugging
-        Log.d(TAG, "Toggling category selection: " + categoryId);
-        Log.d(TAG, "Before toggle - Selected categories: " + selectedCategoryIds.toString());
-        
         if (selectedCategoryIds.contains(categoryId)) {
             selectedCategoryIds.remove(categoryId);
         } else {
             selectedCategoryIds.add(categoryId);
         }
-        
-        Log.d(TAG, "After toggle - Selected categories: " + selectedCategoryIds.toString());
         
         // Re-run search with updated categories
         if (!currentSearchQuery.isEmpty() || !selectedCategoryIds.isEmpty()) {
@@ -91,10 +110,6 @@ public class BookSearchViewModel extends AndroidViewModel {
     
     public boolean isCategorySelected(String categoryId) {
         return selectedCategoryIds.contains(categoryId);
-    }
-    
-    public Set<String> getSelectedCategoryIds() {
-        return selectedCategoryIds;
     }
     
     public void clearCategorySelections() {
@@ -127,19 +142,37 @@ public class BookSearchViewModel extends AndroidViewModel {
     }
     
     public void loadPopularBooks() {
-        isLoading.setValue(true);
+        // Reset pagination state for fresh load
+        currentPageIndex = 1;
+        hasMoreData = true;
+        allSearchResults.clear();
         
-        bookRepository.getBooks(new BookRepository.BookCallback() {
+        isLoading.setValue(true);
+        isLoadingMore.setValue(false);
+        
+        bookRepository.getBooks(currentPageIndex, limit, new BookRepository.BookCallback() {
             @Override
             public void onBooksLoaded(BookListResponse response) {
-                searchResults.postValue(response.getResult().getItems());
+                List<Book> books = response.getResult().getItems();
+                
+                // Store books
+                allSearchResults.addAll(books);
+                
+                // Update LiveData on main thread
+                searchResults.postValue(new ArrayList<>(allSearchResults));
+                
+                // Check if there might be more data
+                hasMoreData = books.size() >= limit;
+                
                 isLoading.postValue(false);
+                isLoadingMore.postValue(false);
             }
 
             @Override
             public void onError(String error) {
                 errorMessage.postValue(error);
                 isLoading.postValue(false);
+                isLoadingMore.postValue(false);
             }
             
             @Override
@@ -148,13 +181,63 @@ public class BookSearchViewModel extends AndroidViewModel {
             }
         });
     }
+    
+    public void loadMorePopularBooks() {
+        if (!hasMoreData || isLoadingMore.getValue() == Boolean.TRUE) {
+            return;
+        }
+        
+        isLoadingMore.setValue(true);
+        currentPageIndex++;
+        
+        bookRepository.getBooks(currentPageIndex, limit, new BookRepository.BookCallback() {
+            @Override
+            public void onBooksLoaded(BookListResponse response) {
+                List<Book> books = response.getResult().getItems();
+                
+                if (books.isEmpty()) {
+                    // No more data available
+                    hasMoreData = false;
+                    isLoadingMore.postValue(false);
+                    return;
+                }
+                
+                // Add newly loaded books to our collection
+                allSearchResults.addAll(books);
+                
+                // Update LiveData
+                searchResults.postValue(new ArrayList<>(allSearchResults));
+                
+                // Check if there might be more data
+                hasMoreData = books.size() >= limit;
+                
+                isLoadingMore.postValue(false);
+            }
+
+            @Override
+            public void onError(String error) {
+                errorMessage.postValue(error);
+                isLoadingMore.postValue(false);
+            }
+        });
+    }
 
     public void searchBooks(String query) {
+        // Reset pagination state for fresh search
+        currentPageIndex = 1;
+        hasMoreData = true;
+        allSearchResults.clear();
+        
         isLoading.setValue(true);
+        isLoadingMore.setValue(false);
         currentSearchQuery = query;
         
         // Build query parameters map for flexible search
         Map<String, String> queryParams = new HashMap<>();
+        
+        // Add pagination parameters
+        queryParams.put("pageIndex", String.valueOf(currentPageIndex));
+        queryParams.put("limit", String.valueOf(limit));
         
         // Add title if present
         if (query != null && !query.isEmpty()) {
@@ -180,24 +263,90 @@ public class BookSearchViewModel extends AndroidViewModel {
             queryParams.put("CategoryCount", String.valueOf(selectedCategoryIds.size()));
         }
         
-        // If no search criteria, use empty search to get all books
-        // or we could call loadPopularBooks() instead
-        
-        // Log search parameters
-        Log.d(TAG, "Search params: " + queryParams);
-        
         // Use the simplified search method
         bookRepository.searchBooksWithParams(queryParams, new BookRepository.BookCallback() {
             @Override
             public void onBooksLoaded(BookListResponse response) {
-                searchResults.postValue(response.getResult().getItems());
+                List<Book> books = response.getResult().getItems();
+                
+                // Store books
+                allSearchResults.addAll(books);
+                
+                // Update LiveData on main thread
+                searchResults.postValue(new ArrayList<>(allSearchResults));
+                
+                // Check if there might be more data
+                hasMoreData = books.size() >= limit;
+                
                 isLoading.postValue(false);
+                isLoadingMore.postValue(false);
             }
 
             @Override
             public void onError(String error) {
                 errorMessage.postValue(error);
                 isLoading.postValue(false);
+                isLoadingMore.postValue(false);
+            }
+        });
+    }
+
+    public void loadMoreBooks() {
+        if (!hasMoreData || isLoadingMore.getValue() != null && isLoadingMore.getValue()) {
+            return; // No more data to load or already loading
+        }
+        
+        isLoadingMore.setValue(true);
+        currentPageIndex++;
+        
+        // Build query parameters map for the next page
+        Map<String, String> queryParams = new HashMap<>();
+        
+        // Add pagination parameters
+        queryParams.put("pageIndex", String.valueOf(currentPageIndex));
+        queryParams.put("limit", String.valueOf(limit));
+        
+        // Add title if present
+        if (currentSearchQuery != null && !currentSearchQuery.isEmpty()) {
+            queryParams.put("Title", currentSearchQuery);
+        }
+        
+        // Add selected category IDs
+        if (!selectedCategoryIds.isEmpty()) {
+            int i = 0;
+            for (String categoryId : selectedCategoryIds) {
+                queryParams.put("CategoryIds" + i, categoryId);
+                i++;
+            }
+            queryParams.put("CategoryCount", String.valueOf(selectedCategoryIds.size()));
+        }
+        
+        // Load more books with the same parameters but next page
+        bookRepository.searchBooksWithParams(queryParams, new BookRepository.BookCallback() {
+            @Override
+            public void onBooksLoaded(BookListResponse response) {
+                List<Book> books = response.getResult().getItems();
+                
+                // Check if we received any books
+                if (books.isEmpty()) {
+                    // No more data to load
+                    hasMoreData = false;
+                } else {
+                    // Add new books to the existing list
+                    allSearchResults.addAll(books);
+                    searchResults.postValue(new ArrayList<>(allSearchResults));
+                    
+                    // Check if there might be more data
+                    hasMoreData = books.size() >= limit;
+                }
+                
+                isLoadingMore.postValue(false);
+            }
+
+            @Override
+            public void onError(String error) {
+                errorMessage.postValue(error);
+                isLoadingMore.postValue(false);
             }
         });
     }
