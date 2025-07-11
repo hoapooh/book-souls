@@ -18,10 +18,14 @@ import java.util.List;
 public class HomeViewModel extends AndroidViewModel {
     
     private BookRepository bookRepository;
+    private com.example.book_souls_project.api.repository.CategoryRepository categoryRepository;
     
     // LiveData for books
     private MutableLiveData<List<Book>> featuredBooks = new MutableLiveData<>();
     private MutableLiveData<List<Book>> recentBooks = new MutableLiveData<>();
+    
+    // LiveData for categories
+    private MutableLiveData<List<com.example.book_souls_project.api.types.category.Category>> categories = new MutableLiveData<>();
     
     // LiveData for loading states
     private MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
@@ -42,6 +46,7 @@ public class HomeViewModel extends AndroidViewModel {
     public HomeViewModel(@NonNull Application application) {
         super(application);
         bookRepository = ApiRepository.getInstance(application).getBookRepository();
+        categoryRepository = ApiRepository.getInstance(application).getCategoryRepository();
     }
 
     // Getters for LiveData (observed by the Fragment)
@@ -51,6 +56,10 @@ public class HomeViewModel extends AndroidViewModel {
 
     public LiveData<List<Book>> getRecentBooks() {
         return recentBooks;
+    }
+    
+    public LiveData<List<com.example.book_souls_project.api.types.category.Category>> getCategories() {
+        return categories;
     }
 
     public LiveData<Boolean> getIsLoading() {
@@ -119,6 +128,25 @@ public class HomeViewModel extends AndroidViewModel {
             @Override
             public void onLoading() {
                 isLoading.postValue(true);
+            }
+        });
+    }
+    
+    public void loadCategories() {
+        categoryRepository.getCategories(new com.example.book_souls_project.api.repository.CategoryRepository.CategoryCallback() {
+            @Override
+            public void onCategoriesLoaded(com.example.book_souls_project.api.types.category.CategoryListResponse response) {
+                categories.postValue(response.getResult().getItems());
+            }
+
+            @Override
+            public void onError(String error) {
+                errorMessage.postValue("Error loading categories: " + error);
+            }
+            
+            @Override
+            public void onLoading() {
+                
             }
         });
     }

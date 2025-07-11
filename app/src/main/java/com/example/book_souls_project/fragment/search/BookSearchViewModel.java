@@ -55,6 +55,12 @@ public class BookSearchViewModel extends AndroidViewModel {
     // Lists to accumulate books from different pages
     private List<Book> allSearchResults = new ArrayList<>();
 
+    // String to hold the initial category ID from navigation
+    private String initialCategoryId = null;
+
+    // Flag to track if the ViewModel has been initialized
+    private boolean initialized = false;
+
     public BookSearchViewModel(@NonNull Application application) {
         super(application);
         bookRepository = ApiRepository.getInstance(application).getBookRepository();
@@ -126,7 +132,20 @@ public class BookSearchViewModel extends AndroidViewModel {
         categoryRepository.getCategories(new CategoryRepository.CategoryCallback() {
             @Override
             public void onCategoriesLoaded(CategoryListResponse response) {
-                categories.postValue(response.getResult().getItems());
+                List<Category> categoryList = response.getResult().getItems();
+                categories.postValue(categoryList);
+                
+                // Check if we need to select an initial category
+                if (initialCategoryId != null && !initialCategoryId.isEmpty()) {
+                    selectedCategoryIds.clear();
+                    selectedCategoryIds.add(initialCategoryId);
+                    
+                    // Trigger a search with the selected category
+                    searchBooks("");
+                    
+                    // Clear the initial ID to prevent repeated selection
+                    initialCategoryId = null;
+                }
             }
 
             @Override
@@ -149,6 +168,9 @@ public class BookSearchViewModel extends AndroidViewModel {
         
         isLoading.setValue(true);
         isLoadingMore.setValue(false);
+        
+        // Mark ViewModel as initialized when popular books are loaded
+        setInitialized();
         
         bookRepository.getBooks(currentPageIndex, limit, new BookRepository.BookCallback() {
             @Override
@@ -231,6 +253,9 @@ public class BookSearchViewModel extends AndroidViewModel {
         isLoading.setValue(true);
         isLoadingMore.setValue(false);
         currentSearchQuery = query;
+        
+        // Mark ViewModel as initialized when search is performed
+        setInitialized();
         
         // Build query parameters map for flexible search
         Map<String, String> queryParams = new HashMap<>();
@@ -353,5 +378,51 @@ public class BookSearchViewModel extends AndroidViewModel {
 
     public void clearError() {
         errorMessage.setValue(null);
+    }
+
+    /**
+     * Sets an initial category to be selected when categories are loaded
+     * 
+     * @param categoryId The category ID to select initially
+     */
+    public void setInitialCategoryId(String categoryId) {
+        this.initialCategoryId = categoryId;
+        
+        // If categories are already loaded, select this category
+        List<Category> loadedCategories = categories.getValue();
+        if (loadedCategories != null && !loadedCategories.isEmpty()) {
+            // Add this category to selected IDs
+            selectedCategoryIds.clear();
+            selectedCategoryIds.add(categoryId);
+            
+            // Search with the selected category
+            searchBooks("");
+        }
+        
+        // Mark ViewModel as initialized when setting initial category
+        setInitialized();
+    }
+
+    /**
+     * Checks if any category is currently selected
+     * @return true if at least one category is selected
+     */
+    public boolean hasAnyCategorySelected() {
+        return !selectedCategoryIds.isEmpty();
+    }
+    
+    /**
+     * Checks if this ViewModel has been initialized
+     * @return true if already initialized
+     */
+    public boolean isInitialized() {
+        return initialized;
+    }
+    
+    /**
+     * Marks this ViewModel as initialized
+     */
+    public void setInitialized() {
+        this.initialized = true;
     }
 }

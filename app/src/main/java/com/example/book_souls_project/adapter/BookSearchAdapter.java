@@ -113,7 +113,6 @@ public class BookSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if (holder instanceof BookViewHolder && position < books.size()) {
             ((BookViewHolder) holder).bind(books.get(position));
         }
-        // No need to bind anything for LoadingViewHolder
     }
 
     @Override
@@ -167,16 +166,15 @@ public class BookSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             });
             
-            // Wishlist feature is not implemented yet
             buttonWishlist.setVisibility(View.GONE);
         }
 
         void bind(Book book) {
-            // Set book data to views
+            
             textBookTitle.setText(book.getTitle());
             textBookAuthor.setText(book.getAuthor());
             
-            // Format rating
+           
             if (book.getRating() > 0) {
                 textBookRating.setText(String.format(Locale.getDefault(), "%.1f", book.getRating()));
                 textRatingCount.setText(String.format(Locale.getDefault(), "(%d)", book.getRatingCount()));
@@ -190,7 +188,7 @@ public class BookSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             String formattedPrice = currencyFormat.format(book.getPrice());
             textBookPrice.setText(formattedPrice);
             
-            // Set description
+           
             textBookDescription.setText(book.getDescription());
             
             // Set genre/category with actual category name

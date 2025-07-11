@@ -47,8 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 public class BookSearchFragment extends Fragment {
-
-    
     private BookSearchViewModel viewModel;
     private BookSearchAdapter searchAdapter;
     private CartManager cartManager;
@@ -86,8 +84,7 @@ public class BookSearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
-        // Initialize ViewModel
-        viewModel = new ViewModelProvider(this).get(BookSearchViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(BookSearchViewModel.class);
         
         // Initialize CartManager
         cartManager = CartManager.getInstance(requireContext());
@@ -109,7 +106,39 @@ public class BookSearchFragment extends Fragment {
         
         // Load data
         viewModel.loadCategories();
-        viewModel.loadPopularBooks();
+        
+        // Check if we're initializing for the first time or coming back from another fragment
+        if (isFirstInitialization()) {
+            // First initialization, check if we were given a category ID from navigation
+            Bundle args = getArguments();
+            if (args != null && args.containsKey("category_id")) {
+                String categoryId = args.getString("category_id");
+                if (categoryId != null && !categoryId.isEmpty()) {
+                    // We'll handle this in the categories observer
+                    viewModel.setInitialCategoryId(categoryId);
+                }
+            } else {
+                // No specific category selected, load popular books
+                viewModel.loadPopularBooks();
+            }
+        } else {
+           
+            // Update UI to match current ViewModel state
+            if (searchAdapter.getItemCount() == 0 || needsDataRefresh()) {
+                // If there's no data, reload based on current selections
+                if (viewModel.hasAnyCategorySelected()) {
+                    // Refresh data with current category selection
+                    viewModel.searchBooks(viewModel.getCurrentSearchQuery());
+                } else {
+                    viewModel.loadPopularBooks();
+                }
+            }
+            
+            // Update chip states to match ViewModel state
+            if (viewModel.getCategories().getValue() != null) {
+                updateChipSelectionStates();
+            }
+        }
     }
     
     private void initViews(View view) {
@@ -131,8 +160,6 @@ public class BookSearchFragment extends Fragment {
         chipAll.setCheckedIconVisible(true);
         chipAll.setCheckedIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check));
         chipAll.setCheckedIconTint(ColorStateList.valueOf(Color.WHITE));
-        
-
         
         // Initially set results text
         textResults.setText("Popular Books");
@@ -223,7 +250,7 @@ public class BookSearchFragment extends Fragment {
         loadingMoreProgressBar.setVisibility(View.VISIBLE);
         searchAdapter.setLoading(true);
         
-        // Add a slight delay for better UX and to avoid rapid sequential calls
+       
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             viewModel.loadMoreBooks();
         }, 300);
@@ -233,9 +260,7 @@ public class BookSearchFragment extends Fragment {
         // Search input listener with debounce
         editTextSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // Not used
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -266,9 +291,7 @@ public class BookSearchFragment extends Fragment {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
-                // Not used
-            }
+            public void afterTextChanged(Editable s) {}
         });
         
         // Handle keyboard search button
@@ -285,25 +308,18 @@ public class BookSearchFragment extends Fragment {
             return false;
         });
         
-        // All categories chip - Use OnCheckedChangeListener instead of OnClickListener
+        
         CompoundButton.OnCheckedChangeListener allChipListener = (buttonView, isChecked) -> {
-
-            
             if (isChecked) {
-
                 // Uncheck all category chips without triggering their listeners
                 for (Chip chip : categoryChips.values()) {
-                    // Remove listener temporarily
                     CompoundButton.OnCheckedChangeListener oldListener = (CompoundButton.OnCheckedChangeListener) chip.getTag();
                     if (oldListener != null) {
                         chip.setOnCheckedChangeListener(null);
                     }
                     
-                    // Uncheck the chip
                     chip.setChecked(false);
-
                     
-                    // Restore the listener
                     if (oldListener != null) {
                         chip.setOnCheckedChangeListener(oldListener);
                     }
@@ -313,8 +329,7 @@ public class BookSearchFragment extends Fragment {
                 viewModel.clearCategorySelections();
 
             } else if (areAllCategoryChipsUnchecked()) {
-                // If no other chips are checked, we should keep "All" checked
-
+                
                 chipAll.setChecked(true);
             }
         };
@@ -322,8 +337,6 @@ public class BookSearchFragment extends Fragment {
         // Store the listener as a tag for later reference
         chipAll.setTag(allChipListener);
         chipAll.setOnCheckedChangeListener(allChipListener);
-        
-
     }
     
     private void observeViewModel() {
@@ -352,6 +365,16 @@ public class BookSearchFragment extends Fragment {
         viewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
             if (categories != null) {
                 setupCategoryChips(categories);
+                
+                // Update chip selection states based on ViewModel
+                updateChipSelectionStates();
+                
+                // If we have an initial category ID set, make sure it's selected
+                
+                if (!isFirstInitialization() && viewModel.hasAnyCategorySelected()) {
+                    // Update UI to reflect current category selection
+                    updateChipSelectionStates();
+                }
             }
         });
         
@@ -399,8 +422,6 @@ public class BookSearchFragment extends Fragment {
     }
     
     private Chip createCategoryChip(Category category) {
-
-        
         // Create chip with the custom style we defined
         Chip chip = new Chip(requireContext(), null, R.style.CategoryChipStyle);
         chip.setText(category.getName());
@@ -413,12 +434,7 @@ public class BookSearchFragment extends Fragment {
         chip.setCheckedIconVisible(true);
         chip.setCheckedIcon(AppCompatResources.getDrawable(requireContext(), R.drawable.ic_check));
         
-        // DEBUGGING: Check if the drawable is actually loaded
-        if (chip.getCheckedIcon() == null) {
 
-        } else {
-
-        }
         
         // Set chip background color state list for the checked/unchecked states
         int[][] states = new int[][] {
@@ -442,19 +458,14 @@ public class BookSearchFragment extends Fragment {
         
         // Create and store the listener
         CompoundButton.OnCheckedChangeListener listener = (buttonView, isChecked) -> {
-
-            
             if (isChecked) {
                 // Temporarily remove All chip listener to avoid callbacks
                 CompoundButton.OnCheckedChangeListener allChipListener = 
                     (CompoundButton.OnCheckedChangeListener) chipAll.getTag();
                 chipAll.setOnCheckedChangeListener(null);
                 
-                // Uncheck "All" chip when any other chip is checked
                 chipAll.setChecked(false);
-
                 
-                // Restore All chip listener
                 if (allChipListener != null) {
                     chipAll.setOnCheckedChangeListener(allChipListener);
                 }
@@ -468,7 +479,6 @@ public class BookSearchFragment extends Fragment {
                 for (Chip c : categoryChips.values()) {
                     if (c.isChecked()) {
                         anyChecked = true;
-
                         break;
                     }
                 }
@@ -503,15 +513,11 @@ public class BookSearchFragment extends Fragment {
         // Set the click listener
         chip.setOnCheckedChangeListener(listener);
         
-        // Final debug check to make sure chip is properly configured
 
-        
         return chip;
     }
     
     private void onBookClick(Book book) {
-
-        
         // Navigate to book detail using Navigation Component
         Bundle args = new Bundle();
         args.putString("book_id", book.getId());
@@ -521,8 +527,6 @@ public class BookSearchFragment extends Fragment {
     }
     
     private void onAddToCartClick(Book book) {
-
-        
         if (book.getStock() <= 0) {
             Toast.makeText(getContext(), "Sorry, " + book.getTitle() + " is out of stock!", Toast.LENGTH_SHORT).show();
             return;
@@ -551,5 +555,55 @@ public class BookSearchFragment extends Fragment {
             }
         }
         return true;
+    }
+    
+    /**
+     * Updates the selection state of all category chips based on the ViewModel's selection state
+     */
+    private void updateChipSelectionStates() {
+        // First check if any categories are selected in the ViewModel
+        boolean anyCategorySelected = false;
+        
+        // Update each category chip
+        for (Map.Entry<String, Chip> entry : categoryChips.entrySet()) {
+            String categoryId = entry.getKey();
+            Chip chip = entry.getValue();
+            
+            // Remove listener temporarily to avoid triggering callbacks
+            CompoundButton.OnCheckedChangeListener listener = 
+                (CompoundButton.OnCheckedChangeListener) chip.getTag();
+            chip.setOnCheckedChangeListener(null);
+            
+            // Set checked state based on ViewModel
+            boolean isSelected = viewModel.isCategorySelected(categoryId);
+            chip.setChecked(isSelected);
+            anyCategorySelected |= isSelected;
+            
+            // Restore listener
+            chip.setOnCheckedChangeListener(listener);
+        }
+        
+        // Update "All" chip based on whether any category is selected
+        CompoundButton.OnCheckedChangeListener allChipListener = 
+            (CompoundButton.OnCheckedChangeListener) chipAll.getTag();
+        chipAll.setOnCheckedChangeListener(null);
+        chipAll.setChecked(!anyCategorySelected);
+        chipAll.setOnCheckedChangeListener(allChipListener);
+    }
+    
+    /**
+     * Determines if this is the first initialization of the fragment.
+     * @return true if fragment is being initialized for the first time, false if it's being restored
+     */
+    private boolean isFirstInitialization() {
+        return !viewModel.isInitialized();
+    }
+    
+    /**
+     * Checks if we need to refresh the data (e.g., coming back from detail view)
+     * @return true if data should be refreshed
+     */
+    private boolean needsDataRefresh() {
+        return true; // Always refresh data when returning to ensure consistency
     }
 }

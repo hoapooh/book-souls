@@ -58,6 +58,7 @@ public class Home extends Fragment {
     // Adapters
     private BookFeaturedAdapter featuredAdapter;
     private BookListAdapter recentAdapter;
+    private com.example.book_souls_project.adapter.CategoryAdapter categoryAdapter;
     
     // Repository
     private BookRepository bookRepository;
@@ -100,8 +101,21 @@ public class Home extends Fragment {
         setupScrollListener();
         observeViewModel();
         
-        // Load books using ViewModel
+        // Load books and categories using ViewModel
         mViewModel.loadBooks();
+        mViewModel.loadCategories();
+    }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        // Check if we need to refresh the data
+        if (featuredAdapter != null && featuredAdapter.getItemCount() == 0) {
+            // Reload data if the adapter is empty
+            mViewModel.loadBooks();
+            mViewModel.loadCategories();
+        }
     }
     
     private void observeViewModel() {
@@ -119,6 +133,13 @@ public class Home extends Fragment {
         mViewModel.getRecentBooks().observe(getViewLifecycleOwner(), books -> {
             if (books != null) {
                 recentAdapter.setBooks(books);
+            }
+        });
+        
+        // Observe categories
+        mViewModel.getCategories().observe(getViewLifecycleOwner(), categories -> {
+            if (categories != null) {
+                categoryAdapter.setCategories(categories);
             }
         });
         
@@ -215,6 +236,15 @@ public class Home extends Fragment {
             }
         });
         
+        // Setup categories RecyclerView (horizontal)
+        categoryAdapter = new com.example.book_souls_project.adapter.CategoryAdapter();
+        LinearLayoutManager categoriesLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerViewCategories.setLayoutManager(categoriesLayoutManager);
+        recyclerViewCategories.setAdapter(categoryAdapter);
+        
+        // Set click listener for categories
+        categoryAdapter.setOnCategoryClickListener(this::onCategoryClick);
+        
         // Setup recent books RecyclerView (vertical)
         recentAdapter = new BookListAdapter();
         recyclerViewRecent.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -288,5 +318,31 @@ public class Home extends Fragment {
                 "Failed to add " + book.getTitle() + " to cart. Please try again.", 
                 Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void onCategoryClick(com.example.book_souls_project.api.types.category.Category category) {
+        // Navigate to search with the selected category
+        Bundle args = new Bundle();
+        args.putString("category_id", category.getId());
+        
+        NavController navController = NavHostFragment.findNavController(this);
+        
+        // Navigate to the search fragment
+        
+        navController.navigate(R.id.navigation_book_search, args,
+            new androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(R.id.navigation_home, false)
+                .build());
+        
+        
+        // Get the activity and find the bottom navigation view
+        if (getActivity() != null) {
+            com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = 
+                getActivity().findViewById(R.id.bottom_navigation);
+            if (bottomNav != null) {
+                bottomNav.setSelectedItemId(R.id.navigation_book_search);
+            }
+        }
+        
     }
 }

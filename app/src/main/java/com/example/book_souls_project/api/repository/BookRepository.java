@@ -78,7 +78,7 @@ public class BookRepository extends BaseRepository {
     }
 
     public void searchBooks(String search, BookCallback callback) {
-        // Default to first page with default limit
+        
         searchBooks(search, 1, 10, callback);
     }
     
@@ -108,7 +108,7 @@ public class BookRepository extends BaseRepository {
                     urlBuilder.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
                 }
                 
-                // Add CategoryIds multiple times (one for each category)
+                // Add CategoryIds 
                 for (int i = 0; i < categoryCount; i++) {
                     String categoryId = queryParams.get("CategoryIds" + i);
                     urlBuilder.append("CategoryIds=").append(categoryId);
@@ -117,7 +117,7 @@ public class BookRepository extends BaseRepository {
                     }
                 }
                 
-                // Use the advanced search with our built URL
+                
                 String url = urlBuilder.toString();
                 
                 Call<BookListResponse> call = bookService.searchBooksAdvanced(url);
@@ -142,7 +142,7 @@ public class BookRepository extends BaseRepository {
             }
         }
         
-        // If no special handling needed, just use the standard QueryMap API
+        // If no special handling needed, use the standard QueryMap API
         Call<BookListResponse> call = bookService.searchBooksWithParams(queryParams);
         executeCall(call, new ApiCallback<BookListResponse>() {
             @Override
