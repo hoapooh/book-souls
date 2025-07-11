@@ -1,15 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Category Chip Style -->
-    <style name="CategoryChipStyle" parent="Widget.MaterialComponents.Chip.Choice">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="checkedIcon">@drawable/ic_check</item>
-        <item name="checkedIconVisible">true</item>
-        <item name="checkedIconTint">@android:color/white</item>
-        <item name="chipBackgroundColor">@color/primary_color</item>
-        <item name="android:clickable">true</item>
-        <item name="android:checkable">true</item>
-        <item name="android:focusable">true</item>
-        <item name="rippleColor">@android:color/white</item>
-    </style>
 </resources>

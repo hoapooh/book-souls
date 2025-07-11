@@ -1,7 +1,6 @@
 package com.example.book_souls_project.fragment.search;
 
-import android.app.Application;
-import android.util.Log;
+import androidx.lifecycle.ViewModel;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;

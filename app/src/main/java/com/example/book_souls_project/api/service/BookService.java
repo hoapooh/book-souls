@@ -1,3 +1,4 @@
+
 package com.example.book_souls_project.api.service;
 
 import com.example.book_souls_project.api.types.book.BookDetailResponse;
@@ -23,12 +24,15 @@ public interface BookService {
     @GET(BOOKS + "/{id}")
     Call<BookDetailResponse> getBookById(@Path("id") String bookId);
 
+    // Search books with optional search parameter
     // Simple search using 'search' parameter (for backward compatibility)
     @GET(BOOKS)
     Call<BookListResponse> searchBooks(@Query("search") String search);
 
+    // Get books by category
     // Flexible search that supports any combination of query parameters
     @GET(BOOKS)
+    Call<BookListResponse> getBooksByCategory(@Query("categoryId") String categoryId);
     Call<BookListResponse> searchBooksWithParams(@QueryMap Map<String, String> queryParams);
     
     // Advanced search that supports any query parameters with complete URL

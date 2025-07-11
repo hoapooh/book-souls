@@ -1,3 +1,4 @@
+
 package com.example.book_souls_project.fragment.book;
 
 import android.os.Bundle;
@@ -172,6 +173,7 @@ public class BookDetailFragment extends Fragment {
                 buyNow(currentBook);
             }
         });
+
     }
 
     private void loadBookDetails() {
