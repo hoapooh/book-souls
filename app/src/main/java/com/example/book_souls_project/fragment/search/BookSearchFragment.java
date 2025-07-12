@@ -107,30 +107,42 @@ public class BookSearchFragment extends Fragment {
         // Load data
         viewModel.loadCategories();
         
-        // Check if we're initializing for the first time or coming back from another fragment
-        if (isFirstInitialization()) {
-            // First initialization, check if we were given a category ID from navigation
-            Bundle args = getArguments();
-            if (args != null && args.containsKey("category_id")) {
-                String categoryId = args.getString("category_id");
-                if (categoryId != null && !categoryId.isEmpty()) {
-                    // We'll handle this in the categories observer
+        // Check if we were given a category ID from navigation
+        Bundle args = getArguments();
+        boolean hasCategoryFromNav = false;
+        
+        if (args != null && args.containsKey("category_id")) {
+            String categoryId = args.getString("category_id");
+            if (categoryId != null && !categoryId.isEmpty()) {
+                // We'll handle this in the categories observer
+                // Only set initial category if we're coming from home or a different category
+                // This prevents resetting user-selected categories when returning from detail page
+                if (isFirstInitialization() || !viewModel.isCategorySelected(categoryId)) {
                     viewModel.setInitialCategoryId(categoryId);
+                    hasCategoryFromNav = true;
                 }
-            } else {
+            }
+        }
+        
+        // Check initialization state
+        if (isFirstInitialization()) {
+            // First initialization
+            if (!hasCategoryFromNav) {
                 // No specific category selected, load popular books
                 viewModel.loadPopularBooks();
             }
         } else {
-           
-            // Update UI to match current ViewModel state
-            if (searchAdapter.getItemCount() == 0 || needsDataRefresh()) {
-                // If there's no data, reload based on current selections
-                if (viewModel.hasAnyCategorySelected()) {
-                    // Refresh data with current category selection
-                    viewModel.searchBooks(viewModel.getCurrentSearchQuery());
-                } else {
-                    viewModel.loadPopularBooks();
+            // If no new category was provided from navigation, continue with existing state
+            if (!hasCategoryFromNav) {
+                // Update UI to match current ViewModel state
+                if (searchAdapter.getItemCount() == 0 || needsDataRefresh()) {
+                    // If there's no data, reload based on current selections
+                    if (viewModel.hasAnyCategorySelected()) {
+                        // Refresh data with current category selection
+                        viewModel.searchBooks(viewModel.getCurrentSearchQuery());
+                    } else {
+                        viewModel.loadPopularBooks();
+                    }
                 }
             }
             
@@ -144,7 +156,6 @@ public class BookSearchFragment extends Fragment {
     private void initViews(View view) {
         recyclerViewSearchResults = view.findViewById(R.id.recyclerViewSearchResults);
         editTextSearch = view.findViewById(R.id.editTextSearch);
-        buttonFilter = view.findViewById(R.id.buttonFilter);
         chipGroup = view.findViewById(R.id.chipGroup);
         chipAll = view.findViewById(R.id.chipAll);
         textResults = view.findViewById(R.id.textResults);
@@ -152,6 +163,18 @@ public class BookSearchFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         loadingMoreProgressBar = view.findViewById(R.id.loadingMoreProgressBar);
         nestedScrollView = view.findViewById(R.id.nestedScrollView);
+        
+        // Sort button
+        ImageButton buttonSort = view.findViewById(R.id.buttonSort);
+        buttonSort.setOnClickListener(v -> {
+            viewModel.toggleSortOrder();
+        });
+        
+        // Defensive check in case any view is missing from layout
+        if (loadingMoreProgressBar == null) {
+            // Log it for debugging purposes
+            android.util.Log.w("BookSearchFragment", "loadingMoreProgressBar not found in layout");
+        }
         
         // Configure the "All" chip to ensure check icon is visible
         chipAll.setCheckable(true);
@@ -247,7 +270,9 @@ public class BookSearchFragment extends Fragment {
         }
         
         isLoadingMore = true;
-        loadingMoreProgressBar.setVisibility(View.VISIBLE);
+        if (loadingMoreProgressBar != null) {
+            loadingMoreProgressBar.setVisibility(View.VISIBLE);
+        }
         searchAdapter.setLoading(true);
         
        
@@ -386,7 +411,9 @@ public class BookSearchFragment extends Fragment {
         // Observe loading more state
         viewModel.getIsLoadingMore().observe(getViewLifecycleOwner(), isLoadingMore -> {
             this.isLoadingMore = isLoadingMore;
-            loadingMoreProgressBar.setVisibility(isLoadingMore ? View.VISIBLE : View.GONE);
+            if (loadingMoreProgressBar != null) {
+                loadingMoreProgressBar.setVisibility(isLoadingMore ? View.VISIBLE : View.GONE);
+            }
             
             // Update adapter loading state
             searchAdapter.setLoading(isLoadingMore);
@@ -397,6 +424,38 @@ public class BookSearchFragment extends Fragment {
             if (error != null && !error.isEmpty()) {
                 Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
                 viewModel.clearError();
+            }
+        });
+        
+        // Observe sort order changes
+        viewModel.getSortOrder().observe(getViewLifecycleOwner(), sortOrder -> {
+            // Update sort button appearance based on sort order
+            ImageButton buttonSort = getView().findViewById(R.id.buttonSort);
+            
+            // Always use the same icon but change the indicator text/appearance
+            buttonSort.setImageResource(R.drawable.ic_sort);
+            
+            switch (sortOrder) {
+                case TITLE_ASC:
+                    // For A-Z sorting
+                    buttonSort.setAlpha(1.0f);  // Full opacity
+                    buttonSort.setColorFilter(getResources().getColor(R.color.primary_color, null));
+                    
+                    break;
+                    
+                case TITLE_DESC:
+                    // For Z-A sorting
+                    buttonSort.setAlpha(1.0f);  // Full opacity
+                    buttonSort.setColorFilter(getResources().getColor(R.color.primary_color_dark, null));
+                    
+                    break;
+                    
+                case NONE:
+                default:
+                    // Default sort icon (no sorting)
+                    buttonSort.setAlpha(0.7f);  // Slightly transparent
+                    buttonSort.clearColorFilter();  // Use default color
+                    break;
             }
         });
     }

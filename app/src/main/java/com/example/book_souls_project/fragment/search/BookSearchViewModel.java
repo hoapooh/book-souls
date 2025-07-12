@@ -61,6 +61,17 @@ public class BookSearchViewModel extends AndroidViewModel {
     // Flag to track if the ViewModel has been initialized
     private boolean initialized = false;
 
+    // Sort order enum
+    public enum SortOrder {
+        NONE,       // Default, no sorting
+        TITLE_ASC,  // A to Z
+        TITLE_DESC  // Z to A
+    }
+    
+    // Current sort order
+    private SortOrder currentSortOrder = SortOrder.NONE;
+    private MutableLiveData<SortOrder> sortOrder = new MutableLiveData<>(SortOrder.NONE);
+    
     public BookSearchViewModel(@NonNull Application application) {
         super(application);
         bookRepository = ApiRepository.getInstance(application).getBookRepository();
@@ -100,6 +111,14 @@ public class BookSearchViewModel extends AndroidViewModel {
         return currentSearchQuery;
     }
     
+    /**
+     * Get the current sort order LiveData
+     * @return LiveData of the current sort order
+     */
+    public LiveData<SortOrder> getSortOrder() {
+        return sortOrder;
+    }
+    
     // Category selection methods
     public void toggleCategorySelection(String categoryId) {
         if (selectedCategoryIds.contains(categoryId)) {
@@ -136,15 +155,14 @@ public class BookSearchViewModel extends AndroidViewModel {
                 categories.postValue(categoryList);
                 
                 // Check if we need to select an initial category
-                if (initialCategoryId != null && !initialCategoryId.isEmpty()) {
-                    selectedCategoryIds.clear();
+                if (initialCategoryId != null && !initialCategoryId.isEmpty() && selectedCategoryIds.isEmpty()) {
+                    // Only set initial category if no other category has been manually selected
                     selectedCategoryIds.add(initialCategoryId);
                     
                     // Trigger a search with the selected category
                     searchBooks("");
                     
-                    // Clear the initial ID to prevent repeated selection
-                    initialCategoryId = null;
+                    // Keep the initialCategoryId to help identify navigation source later
                 }
             }
 
@@ -180,8 +198,8 @@ public class BookSearchViewModel extends AndroidViewModel {
                 // Store books
                 allSearchResults.addAll(books);
                 
-                // Update LiveData on main thread
-                searchResults.postValue(new ArrayList<>(allSearchResults));
+                // Apply sorting and update LiveData
+                applySorting();
                 
                 // Check if there might be more data
                 hasMoreData = books.size() >= limit;
@@ -227,8 +245,8 @@ public class BookSearchViewModel extends AndroidViewModel {
                 // Add newly loaded books to our collection
                 allSearchResults.addAll(books);
                 
-                // Update LiveData
-                searchResults.postValue(new ArrayList<>(allSearchResults));
+                // Apply sorting and update LiveData
+                applySorting();
                 
                 // Check if there might be more data
                 hasMoreData = books.size() >= limit;
@@ -271,11 +289,7 @@ public class BookSearchViewModel extends AndroidViewModel {
         
         // Add selected category IDs
         if (!selectedCategoryIds.isEmpty()) {
-            // When using HashMap with Retrofit's @QueryMap, we can't use the same key multiple times
-            // We need to handle this using a MultiValueMap or by another approach
-            
-            // For our simplified BookService, we'll use a workaround by concatenating category IDs
-            // and then handling them in the searchBooksWithParams method
+            // If multiple categories are selected, we need to add them as separate parameters
             
             int i = 0;
             for (String categoryId : selectedCategoryIds) {
@@ -297,8 +311,8 @@ public class BookSearchViewModel extends AndroidViewModel {
                 // Store books
                 allSearchResults.addAll(books);
                 
-                // Update LiveData on main thread
-                searchResults.postValue(new ArrayList<>(allSearchResults));
+                // Apply sorting and update LiveData
+                applySorting();
                 
                 // Check if there might be more data
                 hasMoreData = books.size() >= limit;
@@ -359,7 +373,7 @@ public class BookSearchViewModel extends AndroidViewModel {
                 } else {
                     // Add new books to the existing list
                     allSearchResults.addAll(books);
-                    searchResults.postValue(new ArrayList<>(allSearchResults));
+                    applySorting();
                     
                     // Check if there might be more data
                     hasMoreData = books.size() >= limit;
@@ -381,25 +395,42 @@ public class BookSearchViewModel extends AndroidViewModel {
     }
 
     /**
-     * Sets an initial category to be selected when categories are loaded
+     * Sets a category to be selected, handling both initial load and subsequent navigation
      * 
-     * @param categoryId The category ID to select initially
+     * @param categoryId The category ID to select
      */
     public void setInitialCategoryId(String categoryId) {
+        // Check if this is a new navigation with different category ID 
+        // or if we're returning from detail view with the same initial category
+        boolean isNewNavigation = initialCategoryId == null || !initialCategoryId.equals(categoryId);
+        
+        // Update the initial category ID
         this.initialCategoryId = categoryId;
         
-        // If categories are already loaded, select this category
-        List<Category> loadedCategories = categories.getValue();
-        if (loadedCategories != null && !loadedCategories.isEmpty()) {
-            // Add this category to selected IDs
-            selectedCategoryIds.clear();
-            selectedCategoryIds.add(categoryId);
+        // Only reset and clear selections if this is truly a new navigation from home screen,
+        // not a return from detail view with the same initial category ID
+        if (isNewNavigation) {
+            // Reset previous search query when selecting a category from navigation
+            this.currentSearchQuery = "";
             
-            // Search with the selected category
-            searchBooks("");
+            // Reset pagination state for fresh load
+            currentPageIndex = 1;
+            hasMoreData = true;
+            allSearchResults.clear();
+            
+            // If categories are already loaded, select this category immediately
+            List<Category> loadedCategories = categories.getValue();
+            if (loadedCategories != null && !loadedCategories.isEmpty()) {
+                // Add this category to selected IDs, replacing any previous selections
+                selectedCategoryIds.clear();
+                selectedCategoryIds.add(categoryId);
+                
+                // Search with the selected category
+                searchBooks("");
+            }
         }
         
-        // Mark ViewModel as initialized when setting initial category
+        // Mark ViewModel as initialized when setting category
         setInitialized();
     }
 
@@ -424,5 +455,67 @@ public class BookSearchViewModel extends AndroidViewModel {
      */
     public void setInitialized() {
         this.initialized = true;
+    }
+
+    /**
+     * Toggle between sort orders: NONE -> TITLE_ASC -> TITLE_DESC -> NONE
+     */
+    public void toggleSortOrder() {
+        switch (currentSortOrder) {
+            case NONE:
+                currentSortOrder = SortOrder.TITLE_ASC;
+                break;
+            case TITLE_ASC:
+                currentSortOrder = SortOrder.TITLE_DESC;
+                break;
+            case TITLE_DESC:
+            default:
+                currentSortOrder = SortOrder.NONE;
+                break;
+        }
+        
+        sortOrder.setValue(currentSortOrder);
+        
+        // Apply sorting to current results
+        applySorting();
+    }
+    
+    /**
+     * Apply current sort order to search results
+     */
+    private void applySorting() {
+        if (allSearchResults.isEmpty()) {
+            return;
+        }
+        
+        List<Book> sortedList = new ArrayList<>(allSearchResults);
+        
+        switch (currentSortOrder) {
+            case TITLE_ASC:
+                // Sort by title ascending (A to Z)
+                sortedList.sort((book1, book2) -> {
+                    if (book1.getTitle() == null) return -1;
+                    if (book2.getTitle() == null) return 1;
+                    return book1.getTitle().compareToIgnoreCase(book2.getTitle());
+                });
+                break;
+                
+            case TITLE_DESC:
+                // Sort by title descending (Z to A)
+                sortedList.sort((book1, book2) -> {
+                    if (book1.getTitle() == null) return 1;
+                    if (book2.getTitle() == null) return -1;
+                    return book2.getTitle().compareToIgnoreCase(book1.getTitle());
+                });
+                break;
+                
+            case NONE:
+            default:
+                // No sorting, leave as is
+                break;
+        }
+        
+        // Update the LiveData with sorted results
+        searchResults.postValue(sortedList);
     }
 }
