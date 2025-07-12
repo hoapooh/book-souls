@@ -26,14 +26,16 @@ public class CartManager {
         this.gson = new Gson();
     }
     
-    // Cart item model
+    // Cart item model với selection state
     public static class CartItem {
         private Book book;
         private int quantity;
+        private boolean isSelected; // Thêm trạng thái được chọn
         
         public CartItem(Book book, int quantity) {
             this.book = book;
             this.quantity = quantity;
+            this.isSelected = false; // Mặc định không được chọn
         }
         
         public Book getBook() { return book; }
@@ -41,6 +43,9 @@ public class CartManager {
         
         public int getQuantity() { return quantity; }
         public void setQuantity(int quantity) { this.quantity = quantity; }
+        
+        public boolean isSelected() { return isSelected; }
+        public void setSelected(boolean selected) { isSelected = selected; }
         
         public int getTotalPrice() {
             return book.getPrice() * quantity;
@@ -191,5 +196,82 @@ public class CartManager {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_CART_ITEMS, cartJson);
         editor.apply();
+    }
+    
+    // Thêm các phương thức mới cho selection
+    
+    // Select/deselect item
+    public boolean setItemSelected(String bookId, boolean selected) {
+        try {
+            List<CartItem> cartItems = getCartItems();
+            for (CartItem item : cartItems) {
+                if (item.getBook().getId().equals(bookId)) {
+                    item.setSelected(selected);
+                    saveCartItems(cartItems);
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "Error setting item selection", e);
+            return false;
+        }
+    }
+    
+    // Select all items
+    public void selectAllItems(boolean selected) {
+        try {
+            List<CartItem> cartItems = getCartItems();
+            for (CartItem item : cartItems) {
+                item.setSelected(selected);
+            }
+            saveCartItems(cartItems);
+        } catch (Exception e) {
+            Log.e(TAG, "Error selecting all items", e);
+        }
+    }
+    
+    // Get selected items
+    public List<CartItem> getSelectedItems() {
+        List<CartItem> allItems = getCartItems();
+        List<CartItem> selectedItems = new ArrayList<>();
+        for (CartItem item : allItems) {
+            if (item.isSelected()) {
+                selectedItems.add(item);
+            }
+        }
+        return selectedItems;
+    }
+    
+    // Get total price of selected items
+    public int getSelectedItemsTotal() {
+        List<CartItem> selectedItems = getSelectedItems();
+        int total = 0;
+        for (CartItem item : selectedItems) {
+            total += item.getTotalPrice();
+        }
+        return total;
+    }
+    
+    // Get count of selected items
+    public int getSelectedItemsCount() {
+        List<CartItem> selectedItems = getSelectedItems();
+        int count = 0;
+        for (CartItem item : selectedItems) {
+            count += item.getQuantity();
+        }
+        return count;
+    }
+    
+    // Remove selected items
+    public void removeSelectedItems() {
+        try {
+            List<CartItem> cartItems = getCartItems();
+            cartItems.removeIf(CartItem::isSelected);
+            saveCartItems(cartItems);
+            Log.d(TAG, "Removed selected items from cart");
+        } catch (Exception e) {
+            Log.e(TAG, "Error removing selected items", e);
+        }
     }
 }

@@ -32,6 +32,17 @@
     <color name="error_color">#F44336</color>
     <color name="warning_color">#FF9800</color>
     <color name="info_color">#2196F3</color>
+    
+    <!-- Order Status Colors -->
+    <color name="status_pending">#FF9800</color>
+    <color name="status_accepted">#4CAF50</color>
+    <color name="status_cancel">#F44336</color>
+    <color name="status_shipping">#2196F3</color>
+    
+    <!-- Payment Status Colors -->
+    <color name="status_paid">#4CAF50</color>
+    <color name="status_none">#757575</color>
+    <color name="status_refund">#FF5722</color>
 
     <!-- Divider Colors -->
     <color name="divider_color">#E0E0E0</color>

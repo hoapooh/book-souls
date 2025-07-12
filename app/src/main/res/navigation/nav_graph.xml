@@ -64,7 +64,17 @@
         android:id="@+id/navigation_cart"
         android:name="com.example.book_souls_project.fragment.cart.CartFragment"
         android:label="fragment_cart"
-        tools:layout="@layout/fragment_cart" />
+        tools:layout="@layout/fragment_cart">
+        <action
+            android:id="@+id/action_cartFragment_to_checkoutFragment"
+            app:destination="@id/checkoutFragment" />
+    </fragment>
+    
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.example.book_souls_project.fragment.checkout.CheckoutFragment"
+        android:label="Checkout"
+        tools:layout="@layout/fragment_checkout" />
     <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.book_souls_project.fragment.profile.ProfileFragment"
@@ -85,7 +95,16 @@
         <action
             android:id="@+id/action_profileFragment_to_viewProfileFragment"
             app:destination="@id/viewProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_ordersFragment"
+            app:destination="@id/ordersFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/ordersFragment"
+        android:name="com.example.book_souls_project.fragment.orders.OrdersFragment"
+        android:label="My Orders"
+        tools:layout="@layout/fragment_orders" />
 
     <fragment
         android:id="@+id/viewProfileFragment"

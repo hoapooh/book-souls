@@ -40,7 +40,6 @@ public class ProfileFragment extends Fragment {
     private LinearLayout layoutMyOrders;
     private LinearLayout layoutWishlist;
     private LinearLayout layoutReadingHistory;
-    private LinearLayout layoutStoreLocation;
     private LinearLayout layoutSettings;
     private LinearLayout layoutSupport;
     private LinearLayout layoutLogout;
@@ -98,7 +97,6 @@ public class ProfileFragment extends Fragment {
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
         layoutWishlist = view.findViewById(R.id.layoutWishlist);
         layoutReadingHistory = view.findViewById(R.id.layoutReadingHistory);
-        layoutStoreLocation = view.findViewById(R.id.layoutStoreLocation);
         layoutSettings = view.findViewById(R.id.layoutSettings);
         layoutSupport = view.findViewById(R.id.layoutSupport);
         layoutLogout = view.findViewById(R.id.layoutLogout);
@@ -110,7 +108,7 @@ public class ProfileFragment extends Fragment {
         });
 
         layoutMyOrders.setOnClickListener(v -> {
-            // TODO: Navigate to My Orders
+            Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_ordersFragment);
         });
 
         layoutWishlist.setOnClickListener(v -> {
@@ -119,10 +117,6 @@ public class ProfileFragment extends Fragment {
 
         layoutReadingHistory.setOnClickListener(v -> {
             // TODO: Navigate to Reading History
-        });
-
-        layoutStoreLocation.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_storeLocationFragment);
         });
 
         layoutSettings.setOnClickListener(v -> {

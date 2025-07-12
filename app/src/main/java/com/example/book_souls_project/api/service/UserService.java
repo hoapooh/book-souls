@@ -20,6 +20,10 @@ public interface UserService {
     @GET(USERS + "/profile")
     Call<UserProfile> getUserProfile(@Header("Authorization") String authorization);
 
+    // Method without Authorization header - AuthInterceptor will add it automatically
+    @GET(USERS + "/profile")
+    Call<UserProfile> getUserProfile();
+
     // Use separate endpoints to avoid the update operator issue
     @PUT(USERS + "/edit-profile")
     Call<UserProfile> editProfile(@Header("Authorization") String authorization,
