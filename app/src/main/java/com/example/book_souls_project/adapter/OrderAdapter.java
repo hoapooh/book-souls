@@ -25,10 +25,19 @@ import java.util.Locale;
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
     private List<Order> orders;
     private Context context;
+    private OnOrderClickListener onOrderClickListener;
+
+    public interface OnOrderClickListener {
+        void onOrderClick(Order order);
+    }
 
     public OrderAdapter(Context context, List<Order> orders) {
         this.context = context;
         this.orders = orders;
+    }
+    
+    public void setOnOrderClickListener(OnOrderClickListener listener) {
+        this.onOrderClickListener = listener;
     }
 
     @NonNull
@@ -67,6 +76,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         OrderBookAdapter booksAdapter = new OrderBookAdapter(order.getOrderBooks());
         holder.recyclerViewOrderBooks.setLayoutManager(new LinearLayoutManager(context));
         holder.recyclerViewOrderBooks.setAdapter(booksAdapter);
+        
+        // Set click listener
+        holder.itemView.setOnClickListener(v -> {
+            if (onOrderClickListener != null) {
+                onOrderClickListener.onOrderClick(order);
+            }
+        });
     }
 
     @Override

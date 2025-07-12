@@ -104,6 +104,13 @@ public class OrdersFragment extends Fragment {
 
     private void setupRecyclerView() {
         orderAdapter = new OrderAdapter(getContext(), orders);
+        orderAdapter.setOnOrderClickListener(order -> {
+            // Navigate to order detail
+            Bundle args = new Bundle();
+            args.putString("order_id", order.getId());
+            Navigation.findNavController(requireView())
+                    .navigate(R.id.action_ordersFragment_to_orderDetailFragment, args);
+        });
         recyclerViewOrders.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewOrders.setAdapter(orderAdapter);
     }

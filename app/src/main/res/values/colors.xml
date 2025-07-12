@@ -38,6 +38,7 @@
     <color name="status_accepted">#4CAF50</color>
     <color name="status_cancel">#F44336</color>
     <color name="status_shipping">#2196F3</color>
+    <color name="status_completed">#4CAF50</color>
     
     <!-- Payment Status Colors -->
     <color name="status_paid">#4CAF50</color>
@@ -61,4 +62,10 @@
     <!-- Bottom Navigation Colors -->
     <color name="bottom_nav_selected">#F27122</color>
     <color name="bottom_nav_unselected">#757575</color>
+
+    <!-- Aliases for consistency -->
+    <color name="primary">@color/primary_color</color>
+    <color name="background_light">@color/background_secondary</color>
+    <color name="divider">@color/divider_color</color>
+    <color name="white">@color/text_white</color>
 </resources>

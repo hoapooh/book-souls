@@ -42,8 +42,6 @@ public class CartFragment extends Fragment implements CartItemAdapter.OnCartItem
     private TextView textItemCount;
     private TextView textSelectedCount;
     private TextView textSubtotal;
-    private TextView textShipping;
-    private TextView textTax;
     private TextView textTotal;
     private MaterialButton buttonCheckout;
     private MaterialButton buttonDeleteSelected;
@@ -81,8 +79,6 @@ public class CartFragment extends Fragment implements CartItemAdapter.OnCartItem
         textItemCount = view.findViewById(R.id.textItemCount);
         textSelectedCount = view.findViewById(R.id.textSelectedCount);
         textSubtotal = view.findViewById(R.id.textSubtotal);
-        textShipping = view.findViewById(R.id.textShipping);
-        textTax = view.findViewById(R.id.textTax);
         textTotal = view.findViewById(R.id.textTotal);
         buttonCheckout = view.findViewById(R.id.buttonCheckout);
         buttonDeleteSelected = view.findViewById(R.id.buttonDeleteSelected);
@@ -187,15 +183,11 @@ public class CartFragment extends Fragment implements CartItemAdapter.OnCartItem
         
         // Calculate prices for selected items
         int selectedTotal = cartManager.getSelectedItemsTotal();
-        int shipping = selectedItems.isEmpty() ? 0 : 25000; // 25k VND shipping
-        int tax = (int) (selectedTotal * 0.1); // 10% tax
-        int finalTotal = selectedTotal + shipping + tax;
+        int finalTotal = selectedTotal;
         
         // Format currency
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
         textSubtotal.setText(currencyFormat.format(selectedTotal));
-        textShipping.setText(currencyFormat.format(shipping));
-        textTax.setText(currencyFormat.format(tax));
         textTotal.setText(currencyFormat.format(finalTotal));
         
         // Update button states

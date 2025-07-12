@@ -1,5 +1,6 @@
 package com.example.book_souls_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -125,6 +126,67 @@ public class MainActivity extends AppCompatActivity {
             bottomNavigationView.setVisibility(View.VISIBLE);
         } catch (Exception e) {
             // Handle navigation error
+        }
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handlePaymentResultNavigation();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handlePaymentResultNavigation();
+    }
+    
+    /**
+     * Handle navigation from payment result
+     */
+    private void handlePaymentResultNavigation() {
+        Intent intent = getIntent();
+        String navigateTo = intent.getStringExtra("navigate_to");
+        
+        if (navigateTo != null) {
+            switch (navigateTo) {
+                case "home":
+                    try {
+                        navController.navigate(R.id.navigation_home);
+                        bottomNavigationView.setVisibility(View.VISIBLE);
+                    } catch (Exception e) {
+                        // Already on home or navigation error
+                    }
+                    break;
+                case "orders":
+                    try {
+                        navController.navigate(R.id.navigation_profile);
+                        // Small delay to ensure profile is loaded, then navigate to orders
+                        bottomNavigationView.postDelayed(() -> {
+                            try {
+                                navController.navigate(R.id.action_profileFragment_to_ordersFragment);
+                            } catch (Exception e) {
+                                // Navigation error
+                            }
+                        }, 100);
+                        bottomNavigationView.setVisibility(View.VISIBLE);
+                    } catch (Exception e) {
+                        // Navigation error
+                    }
+                    break;
+                case "cart":
+                    try {
+                        navController.navigate(R.id.navigation_cart);
+                        bottomNavigationView.setVisibility(View.VISIBLE);
+                    } catch (Exception e) {
+                        // Navigation error
+                    }
+                    break;
+            }
+            
+            // Clear the intent extra to prevent repeated navigation
+            intent.removeExtra("navigate_to");
         }
     }
 }

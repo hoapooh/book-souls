@@ -189,41 +189,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Promo Code Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:hint="Promo code"
-                    >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextPromoCode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textCapCharacters" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonApplyPromo"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Apply"
-                    app:cornerRadius="8dp"
-                    app:strokeColor="@color/primary_color" />
-
-            </LinearLayout>
-
             <!-- Price Summary -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -244,54 +209,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="$45.97"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Shipping"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/textShipping"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$5.99"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tax"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/textTax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$3.68"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
