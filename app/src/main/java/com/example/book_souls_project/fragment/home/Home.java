@@ -2,6 +2,7 @@ package com.example.book_souls_project.fragment.home;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.NavController;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +25,7 @@ import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.BookRepository;
 import com.example.book_souls_project.api.types.book.Book;
 import com.example.book_souls_project.api.types.book.BookListResponse;
+import com.example.book_souls_project.util.CartManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
@@ -47,6 +49,9 @@ public class Home extends Fragment {
     
     // Repository
     private BookRepository bookRepository;
+    
+    // Cart Manager
+    private CartManager cartManager;
 
     public static Home newInstance() {
         return new Home();
@@ -59,6 +64,9 @@ public class Home extends Fragment {
         
         // Initialize ViewModel first
         mViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        
+        // Initialize CartManager
+        cartManager = new CartManager(requireContext());
         
         // Initialize repository
         bookRepository = ApiRepository.getInstance(requireContext()).getBookRepository();
@@ -134,6 +142,10 @@ public class Home extends Fragment {
         recyclerViewRecent.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerViewRecent.setAdapter(recentAdapter);
         
+        // Set cart manager for both adapters
+        featuredAdapter.setCartManager(cartManager);
+        recentAdapter.setCartManager(cartManager);
+        
         // Set click listeners for book items
         featuredAdapter.setOnBookClickListener(this::onBookClick);
         featuredAdapter.setOnAddToCartClickListener(this::onAddToCartClick);
@@ -157,13 +169,37 @@ public class Home extends Fragment {
     
     private void onBookClick(Book book) {
         Log.d(TAG, "Book clicked: " + book.getTitle());
-        Toast.makeText(getContext(), "Opening: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-        // TODO: Navigate to book details fragment
+        
+        // Navigate to book detail using Navigation Component
+        Bundle args = new Bundle();
+        args.putString("book_id", book.getId());
+        
+        NavController navController = NavHostFragment.findNavController(this);
+        navController.navigate(R.id.action_Home_to_BookDetail, args);
     }
     
     private void onAddToCartClick(Book book) {
         Log.d(TAG, "Add to cart clicked: " + book.getTitle());
-        Toast.makeText(getContext(), book.getTitle() + " added to cart!", Toast.LENGTH_SHORT).show();
-        // TODO: Implement add to cart functionality
+        
+        if (book.getStock() <= 0) {
+            Toast.makeText(getContext(), "Sorry, " + book.getTitle() + " is out of stock!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        boolean success = cartManager.addToCart(book, 1);
+        if (success) {
+            int cartCount = cartManager.getCartItemCount();
+            Toast.makeText(getContext(), 
+                book.getTitle() + " added to cart! (" + cartCount + " items)", 
+                Toast.LENGTH_SHORT).show();
+            
+            // Refresh adapters to show updated cart status
+            featuredAdapter.notifyDataSetChanged();
+            recentAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(getContext(), 
+                "Failed to add " + book.getTitle() + " to cart. Please try again.", 
+                Toast.LENGTH_SHORT).show();
+        }
     }
 }
