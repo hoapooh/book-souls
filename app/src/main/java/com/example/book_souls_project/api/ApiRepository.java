@@ -4,6 +4,8 @@ import android.content.Context;
 
 import com.example.book_souls_project.api.repository.AuthRepository;
 import com.example.book_souls_project.api.repository.BookRepository;
+import com.example.book_souls_project.api.repository.CategoryRepository;
+import com.example.book_souls_project.api.repository.PublisherRepository;
 import com.example.book_souls_project.api.service.AuthenticationService;
 
 /**
@@ -17,6 +19,8 @@ public class ApiRepository {
     // Repository instances
     private AuthRepository authRepository;
     private BookRepository bookRepository;
+    private CategoryRepository categoryRepository;
+    private PublisherRepository publisherRepository;
 
     private ApiRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -43,6 +47,22 @@ public class ApiRepository {
             bookRepository = new BookRepository(context);
         }
         return bookRepository;
+    }
+
+    // Get CategoryRepository instance
+    public CategoryRepository getCategoryRepository() {
+        if (categoryRepository == null) {
+            categoryRepository = new CategoryRepository(context);
+        }
+        return categoryRepository;
+    }
+
+    // Get PublisherRepository instance
+    public PublisherRepository getPublisherRepository() {
+        if (publisherRepository == null) {
+            publisherRepository = new PublisherRepository(context);
+        }
+        return publisherRepository;
     }
 
     // Deprecated methods for backward compatibility
