@@ -134,7 +134,11 @@
         android:id="@+id/storeLocationFragment"
         android:name="com.example.book_souls_project.fragment.profile.StoreLocationFragment"
         android:label="Store Location"
-        tools:layout="@layout/fragment_store_location" />
+        tools:layout="@layout/fragment_store_location">
+        <action
+            android:id="@+id/action_storeLocationFragment_to_navigation_home"
+            app:destination="@id/navigation_home" />
+    </fragment>
 
     <fragment
         android:id="@+id/settingsFragment"

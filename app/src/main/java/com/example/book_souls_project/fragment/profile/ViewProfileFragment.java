@@ -155,8 +155,8 @@ public class ViewProfileFragment extends Fragment {
             textAddressCountry.setText("N/A");
         }
 
-        // Load avatar using ImageUtils for better URL handling
-        ImageUtils.loadProfileImage(requireContext(), userProfile.getAvatar(), imageProfilePicture);
+        // Load avatar using simple loader for better compatibility
+        ImageUtils.loadProfileImageSimple(requireContext(), userProfile.getAvatar(), imageProfilePicture);
     }
 
     private void showLoading(boolean isLoading) {

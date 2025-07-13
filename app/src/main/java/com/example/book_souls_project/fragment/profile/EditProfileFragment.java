@@ -185,8 +185,8 @@ public class EditProfileFragment extends Fragment {
             }
         }
 
-        // Load avatar with better error handling and caching
-        ImageUtils.loadProfileImage(requireContext(), userProfile.getAvatar(), imageProfilePicture);
+        // Load avatar using simple loader for better compatibility
+        ImageUtils.loadProfileImageSimple(requireContext(), userProfile.getAvatar(), imageProfilePicture);
     }
 
     private void setupClickListeners() {

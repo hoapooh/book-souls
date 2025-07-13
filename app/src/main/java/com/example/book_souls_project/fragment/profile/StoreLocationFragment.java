@@ -80,7 +80,11 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
         
         // Setup toolbar navigation
         androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+        toolbar.setNavigationOnClickListener(v -> {
+            // Navigate to HomeFragment using local action
+            androidx.navigation.NavController navController = androidx.navigation.fragment.NavHostFragment.findNavController(this);
+            navController.navigate(R.id.action_storeLocationFragment_to_navigation_home);
+        });
         
         // Setup button click listeners
         setupButtonListeners();

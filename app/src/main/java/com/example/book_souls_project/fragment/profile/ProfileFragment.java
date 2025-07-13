@@ -38,8 +38,6 @@ public class ProfileFragment extends Fragment {
     // UI Components
     private LinearLayout layoutViewProfile;
     private LinearLayout layoutMyOrders;
-    private LinearLayout layoutWishlist;
-    private LinearLayout layoutReadingHistory;
     private LinearLayout layoutSettings;
     private LinearLayout layoutSupport;
     private LinearLayout layoutLogout;
@@ -95,8 +93,6 @@ public class ProfileFragment extends Fragment {
         // Menu layouts
         layoutViewProfile = view.findViewById(R.id.layoutViewProfile);
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
-        layoutWishlist = view.findViewById(R.id.layoutWishlist);
-        layoutReadingHistory = view.findViewById(R.id.layoutReadingHistory);
         layoutSettings = view.findViewById(R.id.layoutSettings);
         layoutSupport = view.findViewById(R.id.layoutSupport);
         layoutLogout = view.findViewById(R.id.layoutLogout);
@@ -109,14 +105,6 @@ public class ProfileFragment extends Fragment {
 
         layoutMyOrders.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_ordersFragment);
-        });
-
-        layoutWishlist.setOnClickListener(v -> {
-            // TODO: Navigate to Wishlist
-        });
-
-        layoutReadingHistory.setOnClickListener(v -> {
-            // TODO: Navigate to Reading History
         });
 
         layoutSettings.setOnClickListener(v -> {
