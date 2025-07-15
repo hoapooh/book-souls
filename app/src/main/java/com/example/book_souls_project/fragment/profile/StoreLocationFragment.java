@@ -17,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.button.MaterialButton;
@@ -38,9 +41,6 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
     private TextView textStoreAddress;
     private MaterialButton btnGetDirections;
     private MaterialButton btnCall;
-    private NestedScrollView nestedScrollView;
-    private FrameLayout mapContainer;
-    private View mapOverlay;
     
     // Địa chỉ mặc định: Lưu Hữu Phước Tân Lập, Đông Hoà, Dĩ An, Bình Dương, Việt Nam
     private static final double STORE_LAT = 10.875165839150132;
@@ -61,6 +61,13 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         
+        // Apply window insets to handle system bars (status bar, navigation bar)
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+        
         // Test Google Maps setup
         MapTestHelper.validateGoogleMapsSetup(requireContext());
         MapTestHelper.logMapSetupInfo();
@@ -69,22 +76,8 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
         textStoreAddress = view.findViewById(R.id.textStoreAddress);
         btnGetDirections = view.findViewById(R.id.btnGetDirections);
         btnCall = view.findViewById(R.id.btnCall);
-        nestedScrollView = view.findViewById(R.id.nestedScrollView);
-        mapContainer = view.findViewById(R.id.mapContainer);
-        mapOverlay = view.findViewById(R.id.mapOverlay);
         
         textStoreAddress.setText(STORE_ADDRESS);
-        
-        // Setup map touch handling
-        setupMapTouchHandling();
-        
-        // Setup toolbar navigation
-        androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            // Navigate to HomeFragment using local action
-            androidx.navigation.NavController navController = androidx.navigation.fragment.NavHostFragment.findNavController(this);
-            navController.navigate(R.id.action_storeLocationFragment_to_navigation_home);
-        });
         
         // Setup button click listeners
         setupButtonListeners();
@@ -121,7 +114,14 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
             
             // Enable zoom controls
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            mMap.getUiSettings().setMapToolbarEnabled(true);
+            mMap.getUiSettings().setMapToolbarEnabled(false); // Disable map toolbar to reduce lag
+            mMap.getUiSettings().setCompassEnabled(true);
+            mMap.getUiSettings().setRotateGesturesEnabled(true);
+            mMap.getUiSettings().setTiltGesturesEnabled(true);
+            
+            // Optimize map rendering
+            mMap.setBuildingsEnabled(false); // Disable 3D buildings to improve performance
+            mMap.setTrafficEnabled(false); // Disable traffic layer to improve performance
             
             // Enable my location if permission is granted
             enableMyLocationIfPermitted();
@@ -204,26 +204,6 @@ public class StoreLocationFragment extends Fragment implements OnMapReadyCallbac
                 Log.d(TAG, "Location permission denied");
                 Toast.makeText(getContext(), "Location permission denied", Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-    
-    private void setupMapTouchHandling() {
-        if (mapOverlay != null && nestedScrollView != null) {
-            mapOverlay.setOnTouchListener((v, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                    case MotionEvent.ACTION_MOVE:
-                        // Disable parent scrolling when touching the map
-                        nestedScrollView.requestDisallowInterceptTouchEvent(true);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        // Re-enable parent scrolling
-                        nestedScrollView.requestDisallowInterceptTouchEvent(false);
-                        break;
-                }
-                return false; // Let the map handle the touch event
-            });
         }
     }
 }

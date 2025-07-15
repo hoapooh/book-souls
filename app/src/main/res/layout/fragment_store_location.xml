@@ -1,49 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/background_secondary"
     tools:context=".fragment.profile.StoreLocationFragment">
 
-    <!-- App Bar -->
-    <com.google.android.material.appbar.AppBarLayout
+    <!-- Store Info Card -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:elevation="4dp">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary_color"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Store Location"
-            app:titleTextColor="@color/text_white"
-            app:navigationIconTint="@color/text_white" />
-
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Store Info Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+        android:layout_margin="16dp"
+        app:cardBackgroundColor="@color/background_card"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -134,86 +106,53 @@
                                 android:textColor="@color/text_secondary"
                                 android:textSize="12sp" />
 
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Map Container -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/background_card"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <FrameLayout
-                    android:id="@+id/mapContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <androidx.fragment.app.FragmentContainerView
-                        android:id="@+id/map"
-                        android:name="com.google.android.gms.maps.SupportMapFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                    <!-- Transparent overlay to handle touch conflicts -->
-                    <View
-                        android:id="@+id/mapOverlay"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/transparent" />
-
-                </FrameLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGetDirections"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:text="Get Directions"
-                    android:textColor="@color/text_white"
-                    app:backgroundTint="@color/primary_color"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_directions"
-                    app:iconTint="@color/text_white" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCall"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:text="Call Store"
-                    android:textColor="@color/primary_color"
-                    app:backgroundTint="@color/background_card"
-                    app:cornerRadius="12dp"
-                    app:icon="@drawable/ic_phone"
-                    app:iconTint="@color/primary_color"
-                    app:strokeColor="@color/primary_color"
-                    app:strokeWidth="1dp" />
+                        </LinearLayout>                </LinearLayout>
 
             </LinearLayout>
 
+        </androidx.cardview.widget.CardView>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGetDirections"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="8dp"
+                android:text="Get Directions"
+                android:textColor="@color/text_white"
+                app:backgroundTint="@color/primary_color"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_directions"
+                app:iconTint="@color/text_white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCall"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Call Store"
+                android:textColor="@color/primary_color"
+                app:backgroundTint="@color/background_card"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_phone"
+                app:iconTint="@color/primary_color"
+                app:strokeColor="@color/primary_color"
+                app:strokeWidth="1dp" />
+
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+        <!-- Map Fragment -->
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>
