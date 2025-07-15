@@ -41,6 +41,10 @@
         <action
             android:id="@+id/action_Home_to_BookDetail"
             app:destination="@id/bookDetailFragment" />
+        <action
+            android:id="@+id/action_Home_to_BookSearch"
+            app:destination="@id/navigation_book_search" />
+
     </fragment>
     
     <fragment
@@ -59,7 +63,21 @@
         android:id="@+id/navigation_book_search"
         android:name="com.example.book_souls_project.fragment.search.BookSearchFragment"
         android:label="fragment_book_search"
-        tools:layout="@layout/fragment_book_search" />
+        tools:layout="@layout/fragment_book_search">
+        <action
+            android:id="@+id/action_navigation_book_search_to_bookDetailFragment"
+            app:destination="@id/bookDetailFragment" />
+        <action
+            android:id="@+id/action_navigation_book_search_to_navigation_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/navigation_home"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="category_id"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_cart"
         android:name="com.example.book_souls_project.fragment.cart.CartFragment"
@@ -162,4 +180,6 @@
         android:name="com.example.book_souls_project.fragment.chat.ChatFragment"
         android:label="Support Chat"
         tools:layout="@layout/fragment_chat" />
+        
+
 </navigation>

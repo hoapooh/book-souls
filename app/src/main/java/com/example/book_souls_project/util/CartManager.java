@@ -17,7 +17,7 @@ public class CartManager {
     private static final String PREFS_NAME = "book_souls_cart";
     private static final String KEY_CART_ITEMS = "cart_items";
     private static final String KEY_CART_QUANTITIES = "cart_quantities";
-    
+    private static CartManager instance;
     private SharedPreferences sharedPreferences;
     private Gson gson;
     
@@ -26,6 +26,14 @@ public class CartManager {
         this.gson = new Gson();
     }
     
+    
+    public static synchronized CartManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new CartManager(context);
+        }
+        return instance;
+    }
+  
     // Cart item model với selection state
     public static class CartItem {
         private Book book;

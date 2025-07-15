@@ -35,13 +35,13 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         
-        // Set up bottom navigation with navigation controller
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        // Set up custom bottom navigation handling
+        setupBottomNavListener();
         
         // Check login status and navigate accordingly
         checkLoginStatusAndNavigate();
         
-        // Listen for destination changes to show/hide bottom navigation
+        // Listen for destination changes to show/hide bottom navigation and sync selected item
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             int destinationId = destination.getId();
             
@@ -51,6 +51,22 @@ public class MainActivity extends AppCompatActivity {
                 destinationId == R.id.navigation_cart ||
                 destinationId == R.id.navigation_profile) {
                 bottomNavigationView.setVisibility(View.VISIBLE);
+                
+                // Sync selected item with current destination
+                bottomNavigationView.setOnItemSelectedListener(null);
+                
+                if (destinationId == R.id.navigation_home) {
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+                } else if (destinationId == R.id.navigation_book_search) {
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_book_search);
+                } else if (destinationId == R.id.navigation_cart) {
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_cart);
+                } else if (destinationId == R.id.navigation_profile) {
+                    bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+                }
+                
+                // Restore the listener
+                setupBottomNavListener();
             } else {
                 // Hide for login, signup, chat, and other fragments
                 bottomNavigationView.setVisibility(View.GONE);
@@ -62,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
      * Check login status and navigate to appropriate screen
      */
     private void checkLoginStatusAndNavigate() {
-        // Post to make sure navigation is ready
+        
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(NavController controller, androidx.navigation.NavDestination destination, Bundle arguments) {
@@ -188,5 +204,52 @@ public class MainActivity extends AppCompatActivity {
             // Clear the intent extra to prevent repeated navigation
             intent.removeExtra("navigate_to");
         }
+    }
+  
+    /**
+     * Sets up the bottom navigation listener
+     */
+    private void setupBottomNavListener() {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            
+            // Get the current destination
+            int currentDestId = navController.getCurrentDestination().getId();
+            
+            // If we're already at this destination, don't navigate again
+            if (currentDestId == itemId) {
+                return true;
+            }
+            
+            // Clear backstack when navigating between major destinations
+            if (itemId == R.id.navigation_home || 
+                itemId == R.id.navigation_book_search ||
+                itemId == R.id.navigation_cart ||
+                itemId == R.id.navigation_profile) {
+                
+                // Use a Bundle to pass any necessary arguments
+                Bundle args = null;
+                
+                // Special handling for home navigation to ensure it always works
+                if (itemId == R.id.navigation_home) {
+                    // Pop back stack to home if already there
+                    boolean popped = navController.popBackStack(R.id.navigation_home, false);
+                    
+                    // If we didn't pop anything, navigate to home
+                    if (!popped) {
+                        navController.navigate(R.id.navigation_home);
+                    }
+                    return true;
+                }
+                
+                // Navigate to the selected destination
+                navController.navigate(itemId, args, 
+                    new androidx.navigation.NavOptions.Builder()
+                        .setPopUpTo(navController.getGraph().getStartDestination(), false)
+                        .build());
+                return true;
+            }
+            return false;
+        });
     }
 }

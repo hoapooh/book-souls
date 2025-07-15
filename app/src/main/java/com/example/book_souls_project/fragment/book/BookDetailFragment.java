@@ -1,3 +1,4 @@
+
 package com.example.book_souls_project.fragment.book;
 
 import android.os.Bundle;
@@ -57,7 +58,9 @@ public class BookDetailFragment extends Fragment {
     private LinearLayout layoutIsbn;
     private MaterialButton buttonAddToCart;
     private MaterialButton buttonBuyNow;
+
 //    private MaterialButton buttonWishlist;
+
     private RecyclerView recyclerViewRelatedBooks;
 
     // Data
@@ -134,6 +137,7 @@ public class BookDetailFragment extends Fragment {
         layoutIsbn = view.findViewById(R.id.layoutIsbn);
         buttonAddToCart = view.findViewById(R.id.buttonAddToCart);
         buttonBuyNow = view.findViewById(R.id.buttonBuyNow);
+
 //        buttonWishlist = view.findViewById(R.id.buttonWishlist);
         recyclerViewRelatedBooks = view.findViewById(R.id.recyclerViewRelatedBooks);
 
@@ -415,12 +419,6 @@ public class BookDetailFragment extends Fragment {
         
         // TODO: Navigate to checkout/payment screen
         }
-
-    private void addToWishlist(Book book) {
-        Log.d(TAG, "Add to wishlist: " + book.getTitle());
-        Toast.makeText(getContext(), book.getTitle() + " added to wishlist!", Toast.LENGTH_SHORT).show();
-        // TODO: Implement wishlist functionality
-    }
 
     private void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
