@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.api.types.book.Book;
+import com.example.book_souls_project.util.CartManager;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +25,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
     private List<Book> books = new ArrayList<>();
     private OnBookClickListener onBookClickListener;
     private OnAddToCartClickListener onAddToCartClickListener;
+    private CartManager cartManager;
 
     public interface OnBookClickListener {
         void onBookClick(Book book);
@@ -37,6 +41,10 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
 
     public void setOnAddToCartClickListener(OnAddToCartClickListener listener) {
         this.onAddToCartClickListener = listener;
+    }
+
+    public void setCartManager(CartManager cartManager) {
+        this.cartManager = cartManager;
     }
 
     public void setBooks(List<Book> books) {
@@ -124,7 +132,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
             
             // Set book price
             if (book.getPrice() > 0) {
-                textBookPrice.setText(String.format(Locale.getDefault(), "$%.2f", book.getPrice() / 100.0));
+                textBookPrice.setText(String.format(Locale.getDefault(), "₫%,d", book.getPrice()));
             } else {
                 textBookPrice.setText("Free");
             }
@@ -138,17 +146,28 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
                 }
             }
 
-            // TODO: Load book cover image using Glide or Picasso
-            // For now, we'll use a placeholder
-            // if (book.getImage() != null && !book.getImage().isEmpty()) {
-            //     Glide.with(imageBookCover.getContext())
-            //         .load(book.getImage())
-            //         .placeholder(R.drawable.booksouls_logo_new)
-            //         .error(R.drawable.booksouls_logo_new)
-            //         .into(imageBookCover);
-            // } else {
+            // Update add to cart button based on stock
+            if (buttonAddToCart != null) {
+                if (book.getStock() <= 0) {
+                    buttonAddToCart.setEnabled(false);
+                    buttonAddToCart.setAlpha(0.5f);
+                } else {
+                    buttonAddToCart.setEnabled(true);
+                    buttonAddToCart.setAlpha(1.0f);
+                }
+            }
+
+            // Load book cover image
+            if (book.getImage() != null && !book.getImage().isEmpty()) {
+                Glide.with(imageBookCover.getContext())
+                    .load(book.getImage())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.booksouls_logo_new)
+                    .error(R.drawable.booksouls_logo_new)
+                    .into(imageBookCover);
+            } else {
                 imageBookCover.setImageResource(R.drawable.booksouls_logo_new);
-            // }
+            }
         }
     }
 }

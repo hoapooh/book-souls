@@ -22,13 +22,14 @@
         android:layout_width="0dp"
         android:layout_height="95dp"
         android:layout_gravity="bottom"
-        android:background="?android:attr/windowBackground"
+        android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_navigation"
+        app:itemActiveIndicatorStyle="@color/primary_color"
+        app:labelVisibilityMode="unlabeled"
         app:itemIconTint="@color/bottom_nav_item_color"
-        app:itemTextColor="@color/bottom_nav_item_color"
-        app:elevation="8dp" />
+        app:itemTextColor="@color/bottom_nav_item_color" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
