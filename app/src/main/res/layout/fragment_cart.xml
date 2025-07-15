@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_secondary"
-    android:paddingTop="?attr/actionBarSize"
     tools:context=".fragment.cart.CartFragment">
 
     <!-- Header -->
@@ -24,41 +23,82 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Title Row -->
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <TextView
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Cart"
+                        android:textColor="@color/text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textItemCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="3 items in cart"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/buttonClearCart"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_delete"
+                    app:tint="@color/error_color" />
+
+            </LinearLayout>
+
+            <!-- Select All Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <CheckBox
+                    android:id="@+id/checkboxSelectAll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="My Cart"
+                    android:buttonTint="@color/primary_color" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Select All"
                     android:textColor="@color/text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/textItemCount"
+                    android:id="@+id/textSelectedCount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="3 items in cart"
+                    android:text="0 selected"
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp" />
 
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/buttonClearCart"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_delete"
-                app:tint="@color/error_color" />
 
         </LinearLayout>
 
@@ -148,41 +188,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Promo Code Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
-                    android:hint="Promo code"
-                    >
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextPromoCode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textCapCharacters" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/buttonApplyPromo"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Apply"
-                    app:cornerRadius="8dp"
-                    app:strokeColor="@color/primary_color" />
-
-            </LinearLayout>
-
             <!-- Price Summary -->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -203,54 +208,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="$45.97"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Shipping"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/textShipping"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$5.99"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Tax"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/textTax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="$3.68"
                     android:textColor="@color/text_primary"
                     android:textSize="14sp" />
 
@@ -295,12 +252,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:backgroundTint="@color/primary_color"
-                android:text="Proceed to Checkout"
+                android:text="Checkout Selected Items"
                 android:textColor="@color/text_white"
                 android:textSize="16sp"
                 android:textStyle="bold"
+                android:enabled="false"
                 app:cornerRadius="12dp"
                 app:elevation="4dp" />
+
+            <!-- Delete Selected Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonDeleteSelected"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:text="Delete Selected Items"
+                android:textColor="@color/error_color"
+                android:visibility="gone"
+                app:cornerRadius="8dp"
+                app:strokeColor="@color/error_color" />
 
         </LinearLayout>
 

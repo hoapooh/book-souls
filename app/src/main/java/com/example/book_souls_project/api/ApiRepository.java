@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.example.book_souls_project.api.repository.AuthRepository;
 import com.example.book_souls_project.api.repository.BookRepository;
+import com.example.book_souls_project.api.repository.UserRepository;
 import com.example.book_souls_project.api.repository.CategoryRepository;
 import com.example.book_souls_project.api.repository.PublisherRepository;
 import com.example.book_souls_project.api.service.AuthenticationService;
@@ -21,6 +22,7 @@ public class ApiRepository {
     private BookRepository bookRepository;
     private CategoryRepository categoryRepository;
     private PublisherRepository publisherRepository;
+    private UserRepository userRepository;
 
     private ApiRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -47,6 +49,14 @@ public class ApiRepository {
             bookRepository = new BookRepository(context);
         }
         return bookRepository;
+    }
+
+    // Get UserRepository instance
+    public UserRepository getUserRepository() {
+        if (userRepository == null) {
+            userRepository = new UserRepository(context);
+        }
+        return userRepository;
     }
 
     // Get CategoryRepository instance

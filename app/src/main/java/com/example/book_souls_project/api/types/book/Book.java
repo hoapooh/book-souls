@@ -94,4 +94,9 @@ public class Book {
 
     public String getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+    
+    // Additional method for compatibility
+    public String getImageUrl() { 
+        return image; 
+    }
 }

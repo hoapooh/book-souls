@@ -58,6 +58,9 @@ public class BookDetailFragment extends Fragment {
     private LinearLayout layoutIsbn;
     private MaterialButton buttonAddToCart;
     private MaterialButton buttonBuyNow;
+
+//    private MaterialButton buttonWishlist;
+
     private RecyclerView recyclerViewRelatedBooks;
 
     // Data
@@ -134,6 +137,8 @@ public class BookDetailFragment extends Fragment {
         layoutIsbn = view.findViewById(R.id.layoutIsbn);
         buttonAddToCart = view.findViewById(R.id.buttonAddToCart);
         buttonBuyNow = view.findViewById(R.id.buttonBuyNow);
+
+//        buttonWishlist = view.findViewById(R.id.buttonWishlist);
         recyclerViewRelatedBooks = view.findViewById(R.id.recyclerViewRelatedBooks);
 
         // Setup toolbar
@@ -174,6 +179,11 @@ public class BookDetailFragment extends Fragment {
             }
         });
 
+//        buttonWishlist.setOnClickListener(v -> {
+//            if (currentBook != null) {
+//                addToWishlist(currentBook);
+//            }
+//        });
     }
 
     private void loadBookDetails() {

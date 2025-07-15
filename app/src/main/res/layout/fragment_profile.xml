@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_secondary"
-    android:paddingTop="?attr/actionBarSize"
     tools:context=".fragment.profile.ProfileFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -46,9 +45,7 @@
                             android:layout_height="match_parent"
                             android:scaleType="centerCrop"
                             android:src="@drawable/ic_user"
-                            android:background="@color/background_card"
-                            android:padding="20dp"
-                            app:tint="@color/text_secondary" />
+                            android:background="@color/background_secondary" />
 
                     </androidx.cardview.widget.CardView>
 
@@ -174,6 +171,45 @@
                     android:orientation="vertical"
                     android:padding="8dp">
 
+                    <!-- View Full Profile -->
+                    <LinearLayout
+                        android:id="@+id/layoutViewProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_user"
+                            app:tint="@color/primary_color" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="16dp"
+                            android:text="View Full Profile"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_arrow_forward"
+                            app:tint="@color/text_secondary" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/divider_color"
+                        android:layout_marginHorizontal="16dp" />
+
                     <!-- My Orders -->
                     <LinearLayout
                         android:id="@+id/layoutMyOrders"
@@ -212,117 +248,6 @@
                         android:layout_height="1dp"
                         android:background="@color/divider_color"
                         android:layout_marginHorizontal="16dp" />
-
-                    <!-- Wishlist -->
-                    <LinearLayout
-                        android:id="@+id/layoutWishlist"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_favorite"
-                            app:tint="@color/primary_color" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="16dp"
-                            android:text="My Wishlist"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_secondary" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider_color"
-                        android:layout_marginHorizontal="16dp" />
-
-                    <!-- Reading History -->
-                    <LinearLayout
-                        android:id="@+id/layoutReadingHistory"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_history"
-                            app:tint="@color/primary_color" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="16dp"
-                            android:text="Reading History"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_secondary" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/divider_color"
-                        android:layout_marginHorizontal="16dp" />
-
-                    <!-- Store Location -->
-                    <LinearLayout
-                        android:id="@+id/layoutStoreLocation"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="16dp"
-                        android:background="?android:attr/selectableItemBackground"
-                        android:gravity="center_vertical">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_store_location"
-                            app:tint="@color/primary_color" />
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="16dp"
-                            android:text="Store Location"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_forward"
-                            app:tint="@color/text_secondary" />
-
-                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
