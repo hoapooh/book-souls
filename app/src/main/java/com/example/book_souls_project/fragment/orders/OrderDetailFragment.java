@@ -1,5 +1,7 @@
 package com.example.book_souls_project.fragment.orders;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -26,12 +31,15 @@ import com.example.book_souls_project.adapter.OrderDetailBookAdapter;
 import com.example.book_souls_project.api.ApiClient;
 import com.example.book_souls_project.api.service.BookService;
 import com.example.book_souls_project.api.service.OrderService;
+import com.example.book_souls_project.api.service.PaymentService;
 import com.example.book_souls_project.api.service.UserService;
 import com.example.book_souls_project.api.types.book.BookDetailResponse;
 import com.example.book_souls_project.api.types.order.OrderDetail;
 import com.example.book_souls_project.api.types.order.OrderDetailResponse;
+import okhttp3.ResponseBody;
 import com.example.book_souls_project.api.types.user.UserProfile;
 import com.example.book_souls_project.util.TokenManager;
+import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -54,6 +62,7 @@ public class OrderDetailFragment extends Fragment {
     private ProgressBar progressBar;
     private View layoutOrderDetail;
     private ImageButton buttonBack;
+    private MaterialButton buttonRetryPayment;
     
     // Order Info Views
     private TextView textOrderCode, textOrderDate, textOrderStatus, textPaymentStatus, textTotalPrice;
@@ -73,6 +82,7 @@ public class OrderDetailFragment extends Fragment {
     private OrderService orderService;
     private UserService userService;
     private BookService bookService;
+    private PaymentService paymentService;
     private TokenManager tokenManager;
     
     public static OrderDetailFragment newInstance(String orderId) {
@@ -94,6 +104,7 @@ public class OrderDetailFragment extends Fragment {
         orderService = apiClient.getRetrofit().create(OrderService.class);
         userService = apiClient.getRetrofit().create(UserService.class);
         bookService = apiClient.getRetrofit().create(BookService.class);
+        paymentService = apiClient.getRetrofit().create(PaymentService.class);
         tokenManager = apiClient.getTokenManager();
     }
     
@@ -106,7 +117,11 @@ public class OrderDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         initViews(view);
         setupClickListeners();
         setupRecyclerView();
@@ -123,6 +138,7 @@ public class OrderDetailFragment extends Fragment {
         progressBar = view.findViewById(R.id.progressBar);
         layoutOrderDetail = view.findViewById(R.id.layoutOrderDetail);
         buttonBack = view.findViewById(R.id.buttonBack);
+        buttonRetryPayment = view.findViewById(R.id.buttonRetryPayment);
         
         // Order Info Views
         textOrderCode = view.findViewById(R.id.textOrderCode);
@@ -148,6 +164,12 @@ public class OrderDetailFragment extends Fragment {
     private void setupClickListeners() {
         buttonBack.setOnClickListener(v -> 
             Navigation.findNavController(v).navigateUp());
+        
+        buttonRetryPayment.setOnClickListener(v -> {
+            if (orderDetail != null) {
+                retryPayment(orderDetail.getId());
+            }
+        });
     }
     
     private void setupRecyclerView() {
@@ -213,6 +235,13 @@ public class OrderDetailFragment extends Fragment {
         } else {
             textCancelReason.setVisibility(View.GONE);
         }
+        
+        // Retry Payment Button
+        if (orderDetail.getPaymentStatus().equalsIgnoreCase("none")) {
+            buttonRetryPayment.setVisibility(View.VISIBLE);
+        } else {
+            buttonRetryPayment.setVisibility(View.GONE);
+        }
     }
     
     private void loadCustomerInfo() {
@@ -262,6 +291,32 @@ public class OrderDetailFragment extends Fragment {
             textShippingAddress.setText(address);
         }
     }
+    
+    // private void retryPayment(String orderId) {
+    //     showLoading(true);
+        
+    //     paymentService.retryPayment(orderId).enqueue(new Callback<PaymentResponse>() {
+    //         @Override
+    //         public void onResponse(Call<PaymentResponse> call, Response<PaymentResponse> response) {
+    //             showLoading(false);
+    //             if (response.isSuccessful() && response.body() != null) {
+    //                 // Handle successful payment retry
+    //                 Toast.makeText(getContext(), "Payment retried successfully", Toast.LENGTH_SHORT).show();
+    //                 loadOrderDetail();
+    //             } else {
+    //                 Log.e(TAG, "Failed to retry payment: " + response.code());
+    //                 Toast.makeText(getContext(), "Failed to retry payment", Toast.LENGTH_SHORT).show();
+    //             }
+    //         }
+            
+    //         @Override
+    //         public void onFailure(Call<PaymentResponse> call, Throwable t) {
+    //             showLoading(false);
+    //             Log.e(TAG, "Error retrying payment", t);
+    //             Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+    //         }
+    //     });
+    // }
     
     private String formatDate(String dateString) {
         try {
@@ -321,5 +376,52 @@ public class OrderDetailFragment extends Fragment {
     private void showLoading(boolean show) {
         progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
         layoutOrderDetail.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+    
+    private void retryPayment(String orderId) {
+        buttonRetryPayment.setEnabled(false);
+        buttonRetryPayment.setText("Processing...");
+        paymentService.retryPayment(orderId).enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                buttonRetryPayment.setEnabled(true);
+                buttonRetryPayment.setText("Retry Payment");
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        String paymentUrl = response.body().string();
+                        if (paymentUrl != null && !paymentUrl.isEmpty()) {
+                            openPaymentUrl(paymentUrl);
+                            Toast.makeText(getContext(), "Redirecting to payment...", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Payment retry failed: No URL", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error reading payment URL", e);
+                        Toast.makeText(getContext(), "Error processing payment URL", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Log.e(TAG, "Failed to retry payment: " + response.code());
+                    Toast.makeText(getContext(), "Failed to retry payment", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                buttonRetryPayment.setEnabled(true);
+                buttonRetryPayment.setText("Retry Payment");
+                Log.e(TAG, "Error retrying payment", t);
+                Toast.makeText(getContext(), "Network error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private void openPaymentUrl(String paymentUrl) {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(paymentUrl));
+            startActivity(browserIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error opening payment URL", e);
+            Toast.makeText(getContext(), "Unable to open payment page", Toast.LENGTH_SHORT).show();
+        }
     }
 }

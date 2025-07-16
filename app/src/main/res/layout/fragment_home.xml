@@ -143,19 +143,6 @@
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="3" />
 
-            <!-- Test Button to go back to Login -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonTestLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="24dp"
-                android:backgroundTint="@color/error_color"
-                android:text="TEST: Back to Login"
-                android:textColor="@color/text_white"
-                android:textSize="14sp"
-                app:cornerRadius="8dp" />
-
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

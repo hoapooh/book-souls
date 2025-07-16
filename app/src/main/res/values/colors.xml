@@ -53,6 +53,10 @@
     <color name="button_disabled">#CCCCCC</color>
     <color name="button_pressed">#E55A0A</color>
 
+    <!-- Notification Colors -->
+    <color name="primary_light">#FFE5D9</color>
+    <color name="text_disabled">#BDBDBD</color>
+
     <!-- Transparent Colors -->
     <color name="transparent">#00000000</color>
     <color name="black_overlay">#66000000</color>
