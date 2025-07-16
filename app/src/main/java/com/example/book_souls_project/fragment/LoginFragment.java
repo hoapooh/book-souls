@@ -58,9 +58,9 @@ public class LoginFragment extends Fragment {
         setupLoginListener();
 
         // Handle test button click for quick navigation to home
-        binding.buttonTestHome.setOnClickListener(v -> {
-            NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.action_LoginFragment_to_Home);
-        });
+//        binding.buttonTestHome.setOnClickListener(v -> {
+//            NavHostFragment.findNavController(LoginFragment.this).navigate(R.id.action_LoginFragment_to_Home);
+//        });
     }
 
     private void initViews() {
