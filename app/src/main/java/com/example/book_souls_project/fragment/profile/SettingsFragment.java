@@ -7,6 +7,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import com.example.book_souls_project.R;
@@ -32,7 +35,11 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         initViews(view);
         setupClickListeners();
         setupToolbar(view);
@@ -57,7 +64,7 @@ public class SettingsFragment extends Fragment {
         });
 
         layoutNotifications.setOnClickListener(v -> {
-            // TODO: Navigate to Notifications settings
+            Navigation.findNavController(v).navigate(R.id.action_settingsFragment_to_notificationFragment);
         });
 
         layoutPrivacy.setOnClickListener(v -> {

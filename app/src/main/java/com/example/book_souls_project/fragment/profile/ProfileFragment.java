@@ -44,6 +44,7 @@ public class ProfileFragment extends Fragment {
     private LinearLayout layoutSettings;
     private LinearLayout layoutSupport;
     private LinearLayout layoutLogout;
+    private LinearLayout layoutNotifications;
     
     // Profile UI Components
     private ImageView imageProfilePicture;
@@ -107,6 +108,7 @@ public class ProfileFragment extends Fragment {
         layoutSettings = view.findViewById(R.id.layoutSettings);
         layoutSupport = view.findViewById(R.id.layoutSupport);
         layoutLogout = view.findViewById(R.id.layoutLogout);
+        layoutNotifications = view.findViewById(R.id.layoutNotifications);
     }
 
     private void setupClickListeners() {
@@ -124,6 +126,10 @@ public class ProfileFragment extends Fragment {
 
         layoutSupport.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_chatFragment);
+        });
+
+        layoutNotifications.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_notificationFragment);
         });
 
         layoutLogout.setOnClickListener(v -> {

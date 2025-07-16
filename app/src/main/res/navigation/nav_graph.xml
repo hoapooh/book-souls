@@ -116,6 +116,9 @@
         <action
             android:id="@+id/action_profileFragment_to_ordersFragment"
             app:destination="@id/ordersFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
     </fragment>
 
     <fragment
@@ -166,6 +169,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_notificationFragment"
+            app:destination="@id/notificationFragment" />
     </fragment>
 
     <fragment
@@ -180,6 +186,12 @@
         android:name="com.example.book_souls_project.fragment.chat.ChatFragment"
         android:label="Support Chat"
         tools:layout="@layout/fragment_chat" />
+
+    <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.example.book_souls_project.fragment.settings.NotificationFragment"
+        android:label="Notifications"
+        tools:layout="@layout/fragment_notifications" />
         
 
 </navigation>

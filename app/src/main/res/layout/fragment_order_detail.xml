@@ -324,6 +324,23 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Retry Payment Button (only show for pending orders) -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonRetryPayment"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:text="Retry Payment"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="12dp"
+                app:icon="@drawable/ic_payment"
+                app:iconTint="@color/white" />
+
         </LinearLayout>
 
     </ScrollView>

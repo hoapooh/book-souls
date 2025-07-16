@@ -1,29 +1,52 @@
 package com.example.book_souls_project.activity;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
 import com.example.book_souls_project.MainActivity;
 import com.example.book_souls_project.R;
+import com.example.book_souls_project.api.ApiClient;
+import com.example.book_souls_project.api.service.NotificationService;
+import com.example.book_souls_project.api.types.notification.CreateNotificationRequest;
 import com.google.android.material.button.MaterialButton;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class PaymentResultActivity extends AppCompatActivity {
+    private static final String TAG = "PaymentResultActivity";
+    private static final String CHANNEL_ID = "payment_notifications";
     
     private LinearLayout layoutLoading, layoutSuccess, layoutFailed;
     private TextView textSuccessOrderCode, textFailedTitle, textFailedMessage;
     private MaterialButton buttonBackToHome, buttonViewOrders, buttonTryAgain, buttonBackToHomeFromFailed;
+    
+    private NotificationService notificationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_result);
+        
+        // Initialize notification service
+        ApiClient apiClient = ApiClient.getInstance(this);
+        notificationService = apiClient.getRetrofit().create(NotificationService.class);
+        
+        // Create notification channel
+        createNotificationChannel();
         
         initViews();
         setupClickListeners();
@@ -90,6 +113,14 @@ public class PaymentResultActivity extends AppCompatActivity {
         if (orderCode != null && !orderCode.isEmpty()) {
             textSuccessOrderCode.setText("#" + orderCode);
         }
+        
+        // Create notification for successful payment
+        createPaymentNotification("Payment Successful", 
+            "Your payment for order #" + orderCode + " has been processed successfully!");
+        
+        // Show system notification
+        showSystemNotification("Payment Successful", 
+            "Your order #" + orderCode + " payment has been completed.");
     }
 
     private void showPaymentCancelled() {
@@ -114,6 +145,14 @@ public class PaymentResultActivity extends AppCompatActivity {
         
         // Reset button text for failed case
         buttonTryAgain.setText("Try Again");
+        
+        // Create notification for failed payment
+        createPaymentNotification("Payment Failed", 
+            "Your payment was not processed. Please try again.");
+        
+        // Show system notification
+        showSystemNotification("Payment Failed", 
+            "Your payment was not processed successfully.");
     }
     
     private void navigateToHome(boolean paymentSuccess) {
@@ -140,5 +179,50 @@ public class PaymentResultActivity extends AppCompatActivity {
         intent.putExtra("navigate_to", "cart");
         startActivity(intent);
         finish();
+    }
+    
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Payment Notifications";
+            String description = "Notifications for payment status updates";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+    
+    private void createPaymentNotification(String title, String content) {
+        CreateNotificationRequest request = new CreateNotificationRequest(title, content);
+        
+        notificationService.createNotification(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d(TAG, "Notification created successfully");
+                } else {
+                    Log.e(TAG, "Failed to create notification: " + response.code());
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Error creating notification", t);
+            }
+        });
+    }
+    
+    private void showSystemNotification(String title, String content) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notifications)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true);
+        
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notificationManager.notify(1, builder.build());
     }
 }
