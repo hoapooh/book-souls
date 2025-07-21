@@ -71,7 +71,7 @@ public class UserRepository extends BaseRepository {
         }
 
         String authHeader = "Bearer " + token;
-        Call<UserProfile> call = userService.editProfile(authHeader, request);
+                Call<UserProfile> call = userService.editProfile(authHeader, request);
 
         executeCall(call, new ApiCallback<UserProfile>() {
             @Override

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_background"
+    android:background="@color/white_overlay"
     android:padding="24dp">
 
     <!-- Scroll View for better UX on smaller screens -->
@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Welcome Back!"
-                android:textColor="#FFFFFF"
+                android:textColor="@color/primary_color"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-medium"
@@ -67,7 +67,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Sign in to continue your journey"
-                android:textColor="#CCCCCC"
+                android:textColor="#333333"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -78,10 +78,10 @@
                 android:id="@+id/formContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                app:cardBackgroundColor="#FFFFFF"
+                android:layout_marginTop="20dp"
+                app:cardBackgroundColor="@color/white_overlay"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="12dp"
+                app:cardElevation="0dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/textSubtitle">
@@ -273,7 +273,7 @@
                 android:id="@+id/layoutSignUpLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="0dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -283,7 +283,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Don't have an account? "
-                    android:textColor="#CCCCCC"
+                    android:textColor="#333333"
                     android:textSize="14sp" />
 
                 <TextView
@@ -291,7 +291,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Sign Up"
-                    android:textColor="@color/accent_color"
+                    android:textColor="@color/primary_color"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:clickable="true"
@@ -302,19 +302,19 @@
             </LinearLayout>
 
             <!-- Test Button for Quick Home Navigation -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonTestHome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/accent_color"
-                android:text="TEST: Go to Home"
-                android:textColor="@color/text_white"
-                android:textSize="14sp"
-                app:cornerRadius="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layoutSignUpLink" />
+<!--            <com.google.android.material.button.MaterialButton-->
+<!--                android:id="@+id/buttonTestHome"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:backgroundTint="@color/accent_color"-->
+<!--                android:text="TEST: Go to Home"-->
+<!--                android:textColor="@color/text_white"-->
+<!--                android:textSize="14sp"-->
+<!--                app:cornerRadius="8dp"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/layoutSignUpLink" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

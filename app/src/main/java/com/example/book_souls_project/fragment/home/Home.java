@@ -39,7 +39,6 @@ public class Home extends Fragment {
     private static final String TAG = "HomeFragment";
     
     private HomeViewModel mViewModel;
-    private Button buttonTestLogin;
     
     // RecyclerViews
     private RecyclerView recyclerViewFeatured;
@@ -203,7 +202,6 @@ public class Home extends Fragment {
     }
     
     private void initViews(View view) {
-        buttonTestLogin = view.findViewById(R.id.buttonTestLogin);
         recyclerViewFeatured = view.findViewById(R.id.recyclerViewFeatured);
         recyclerViewRecent = view.findViewById(R.id.recyclerViewRecent);
         recyclerViewCategories = view.findViewById(R.id.recyclerViewCategories);
@@ -274,9 +272,6 @@ public class Home extends Fragment {
     
     private void setupClickListeners() {
         // Handle test button click to go back to login
-        buttonTestLogin.setOnClickListener(v -> {
-            NavHostFragment.findNavController(Home.this).navigate(R.id.action_Home_to_LoginFragment);
-        });
     }
     
     private void setupScrollListener() {

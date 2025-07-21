@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -96,7 +100,11 @@ public class EditProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         initViews(view);
         loadCurrentUserData();
         setupClickListeners();
@@ -220,10 +228,10 @@ public class EditProfileFragment extends Fragment {
         }
 
         setLoadingState(true);
-
+        Log.d("EditProfileFragment", selectedImageUri.toString());
         if (selectedImageUri != null) {
             // Save with avatar
-            saveProfileWithAvatar(fullName, phone, gender, addressStreet, addressWard, 
+            saveProfileWithAvatar(fullName, phone, gender, addressStreet, addressWard,
                                 addressDistrict, addressCity, addressCountry);
         } else {
             // Save without avatar - use multipart form but without avatar file
