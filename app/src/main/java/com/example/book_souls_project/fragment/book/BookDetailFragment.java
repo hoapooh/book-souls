@@ -73,8 +73,8 @@ public class BookDetailFragment extends Fragment {
     private RecyclerView recyclerViewRelatedBooks;
     
     // Review components
-    private ImageView ratingStar1, ratingStar2, ratingStar3, ratingStar4, ratingStar5;
-    private int selectedRating = 0; // Track the selected rating (1-5)
+    private RatingBar ratingBarUserRating;
+    private float selectedRating = 0; // Track the selected rating (0-5, supports 0.5 increments)
     private TextInputEditText editTextComment;
     private MaterialButton buttonSubmitReview;
     private RecyclerView recyclerViewReviews;
@@ -175,11 +175,7 @@ public class BookDetailFragment extends Fragment {
 
         // Initialize review components
         // Initialize star rating system
-        ratingStar1 = view.findViewById(R.id.ratingStar1);
-        ratingStar2 = view.findViewById(R.id.ratingStar2);
-        ratingStar3 = view.findViewById(R.id.ratingStar3);
-        ratingStar4 = view.findViewById(R.id.ratingStar4);
-        ratingStar5 = view.findViewById(R.id.ratingStar5);
+        ratingBarUserRating = view.findViewById(R.id.ratingBarUserRating);
         
         editTextComment = view.findViewById(R.id.editTextComment);
         buttonSubmitReview = view.findViewById(R.id.buttonSubmitReview);
@@ -249,27 +245,18 @@ public class BookDetailFragment extends Fragment {
     }
 
     private void setupStarRating() {
-        ImageView[] stars = {ratingStar1, ratingStar2, ratingStar3, ratingStar4, ratingStar5};
-        
-        for (int i = 0; i < stars.length; i++) {
-            final int rating = i + 1;
-            stars[i].setOnClickListener(v -> {
-                selectedRating = rating;
-                updateStarDisplay();
-            });
-        }
+        ratingBarUserRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                if (fromUser) {
+                    selectedRating = rating;
+                }
+            }
+        });
     }
     
     private void updateStarDisplay() {
-        ImageView[] stars = {ratingStar1, ratingStar2, ratingStar3, ratingStar4, ratingStar5};
-        
-        for (int i = 0; i < stars.length; i++) {
-            if (i < selectedRating) {
-                stars[i].setImageResource(R.drawable.ic_star);
-            } else {
-                stars[i].setImageResource(R.drawable.ic_star_border);
-            }
-        }
+        ratingBarUserRating.setRating(selectedRating);
     }
 
     private void loadBookDetails() {
@@ -574,7 +561,7 @@ public class BookDetailFragment extends Fragment {
     }
 
     private void submitReview() {
-        int rating = selectedRating;
+        float rating = selectedRating;
         String comment = editTextComment.getText() != null ? editTextComment.getText().toString().trim() : "";
         
         // Validate input
@@ -604,7 +591,7 @@ public class BookDetailFragment extends Fragment {
         ReviewCreateRequest request = new ReviewCreateRequest();
         request.setBookId(bookId);
         request.setUserId(userId);
-        request.setRating((int) rating);
+        request.setRating((double) rating); // Convert float to double
         request.setComment(comment);
         
         reviewRepository.createReview(request, new ReviewRepository.ReviewCreateCallback() {
