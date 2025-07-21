@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.book_souls_project"
-        minSdk = 30
+        minSdk = 29
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"

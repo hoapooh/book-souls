@@ -7,6 +7,7 @@ import com.example.book_souls_project.api.repository.BookRepository;
 import com.example.book_souls_project.api.repository.UserRepository;
 import com.example.book_souls_project.api.repository.CategoryRepository;
 import com.example.book_souls_project.api.repository.PublisherRepository;
+import com.example.book_souls_project.api.repository.ReviewRepository;
 import com.example.book_souls_project.api.service.AuthenticationService;
 
 /**
@@ -23,6 +24,7 @@ public class ApiRepository {
     private CategoryRepository categoryRepository;
     private PublisherRepository publisherRepository;
     private UserRepository userRepository;
+    private ReviewRepository reviewRepository;
 
     private ApiRepository(Context context) {
         this.context = context.getApplicationContext();
@@ -73,6 +75,14 @@ public class ApiRepository {
             publisherRepository = new PublisherRepository(context);
         }
         return publisherRepository;
+    }
+
+    // Get ReviewRepository instance
+    public ReviewRepository getReviewRepository() {
+        if (reviewRepository == null) {
+            reviewRepository = new ReviewRepository(context);
+        }
+        return reviewRepository;
     }
 
     // Deprecated methods for backward compatibility
