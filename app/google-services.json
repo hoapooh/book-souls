@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "706464328599",
+    "project_id": "book-souls-27aea",
+    "storage_bucket": "book-souls-27aea.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706464328599:android:93a9307cff497d50d572d2",
+        "android_client_info": {
+          "package_name": "com.example.book_souls_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgxIjdAkzCfVjeS9nP3qjSJ_q8_QLpoWU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

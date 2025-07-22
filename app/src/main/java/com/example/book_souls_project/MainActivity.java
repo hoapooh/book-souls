@@ -1,19 +1,39 @@
 package com.example.book_souls_project;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
+import com.example.book_souls_project.api.service.UserService;
+import com.example.book_souls_project.api.types.user.FCMTokenRequest;
 import com.example.book_souls_project.util.TokenManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Check login status and navigate accordingly
         checkLoginStatusAndNavigate();
+
+        // Create notification channel for FCM
+        createFCMNotificationChannel();
 
         // Listen for destination changes to show/hide bottom navigation
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -77,7 +100,102 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.setVisibility(View.GONE);
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);
+            }
+        }
+
+        // Get FCM registration token for debugging
+        getFCMToken();
     }
+
+    /**
+     * Get FCM registration token for debugging
+     */
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("MainActivity", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        Log.d("MainActivity", "FCM Registration Token: " + token);
+                        Toast.makeText(MainActivity.this, "FCM Token logged (check console)", Toast.LENGTH_SHORT).show();
+                        
+                        // Send token to server if user is logged in
+                        sendFCMTokenToServer(token);
+                    }
+                });
+    }
+
+    /**
+     * Send FCM token to server for the current logged-in user
+     */
+    private void sendFCMTokenToServer(String fcmToken) {
+        if (authRepository.isLoggedIn()) {
+            String userId = tokenManager.getUserId();
+            String authToken = tokenManager.getAccessToken();
+            
+            if (userId != null && authToken != null) {
+                UserService userService = ApiRepository.getInstance(this)
+                        .getRetrofit().create(UserService.class);
+                
+                FCMTokenRequest request = new FCMTokenRequest(userId, fcmToken);
+                
+                userService.updateFCMToken("Bearer " + authToken, request)
+                        .enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                if (response.isSuccessful()) {
+                                    Log.d("MainActivity", "FCM token sent to server successfully");
+                                } else {
+                                    Log.e("MainActivity", "Failed to send FCM token: " + response.code());
+                                }
+                            }
+                            
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Log.e("MainActivity", "Error sending FCM token", t);
+                            }
+                        });
+            }
+        } else {
+            Log.d("MainActivity", "User not logged in, FCM token not sent to server");
+        }
+    }
+
+    /**
+     * Create notification channel for Firebase Cloud Messaging
+     */
+    private void createFCMNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Firebase Notifications";
+            String description = "Notifications from Firebase Cloud Messaging";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("FCM_CHANNEL", name, importance);
+            channel.setDescription(description);
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+                Log.d("MainActivity", "FCM notification channel created");
+            }
+        }
+    }
+
+
 
     /**
      * Check login status and navigate to appropriate screen

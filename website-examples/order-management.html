@@ -1,0 +1,147 @@
+<!-- HTML form for updating order status -->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Order Management</title>
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	</head>
+	<body>
+		<div class="order-management">
+			<h2>Update Order Status</h2>
+			<form id="updateOrderForm">
+				<div>
+					<label for="orderId">Order ID:</label>
+					<input type="text" id="orderId" name="orderId" required />
+				</div>
+
+				<div>
+					<label for="status">New Status:</label>
+					<select id="status" name="status" required>
+						<option value="">Select Status</option>
+						<option value="pending">Pending</option>
+						<option value="confirmed">Confirmed</option>
+						<option value="processing">Processing</option>
+						<option value="shipped">Shipped</option>
+						<option value="out_for_delivery">Out for Delivery</option>
+						<option value="delivered">Delivered</option>
+						<option value="cancelled">Cancelled</option>
+					</select>
+				</div>
+
+				<div>
+					<label>
+						<input type="checkbox" id="notifyUser" name="notifyUser" checked />
+						Send push notification to user
+					</label>
+				</div>
+
+				<button type="submit">Update Order Status</button>
+			</form>
+
+			<div id="result"></div>
+		</div>
+
+		<script>
+			$("#updateOrderForm").on("submit", function (e) {
+				e.preventDefault();
+
+				const orderId = $("#orderId").val();
+				const status = $("#status").val();
+				const notifyUser = $("#notifyUser").is(":checked");
+
+				// Call your backend API
+				$.ajax({
+					url: `/api/orders/${orderId}/status`,
+					method: "PUT",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: "Bearer " + getAuthToken(), // Your auth method
+					},
+					data: JSON.stringify({
+						status: status,
+						notifyUser: notifyUser,
+					}),
+					success: function (response) {
+						$("#result").html(`
+                        <div class="success">
+                            Order ${orderId} updated to ${status} successfully!
+                            ${notifyUser ? "Push notification sent to user." : ""}
+                        </div>
+                    `);
+					},
+					error: function (xhr, status, error) {
+						$("#result").html(`
+                        <div class="error">
+                            Error updating order: ${xhr.responseText || error}
+                        </div>
+                    `);
+					},
+				});
+			});
+
+			function getAuthToken() {
+				// Return your authentication token
+				return localStorage.getItem("authToken") || "";
+			}
+		</script>
+
+		<style>
+			.order-management {
+				max-width: 500px;
+				margin: 50px auto;
+				padding: 20px;
+				border: 1px solid #ddd;
+				border-radius: 8px;
+			}
+
+			.order-management div {
+				margin-bottom: 15px;
+			}
+
+			label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+
+			input,
+			select {
+				width: 100%;
+				padding: 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+			}
+
+			button {
+				background-color: #007bff;
+				color: white;
+				padding: 10px 20px;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+
+			button:hover {
+				background-color: #0056b3;
+			}
+
+			.success {
+				color: green;
+				margin-top: 15px;
+				padding: 10px;
+				background-color: #d4edda;
+				border: 1px solid #c3e6cb;
+				border-radius: 4px;
+			}
+
+			.error {
+				color: red;
+				margin-top: 15px;
+				padding: 10px;
+				background-color: #f8d7da;
+				border: 1px solid #f5c6cb;
+				border-radius: 4px;
+			}
+		</style>
+	</body>
+</html>
