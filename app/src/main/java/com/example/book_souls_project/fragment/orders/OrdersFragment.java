@@ -10,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,6 +49,11 @@ public class OrdersFragment extends Fragment {
     private MaterialButton buttonApplyFilter;
     private ImageButton buttonBack;
     
+    // Pagination controls
+    private View paginationCard;
+    private MaterialButton buttonPreviousPage, buttonNextPage;
+    private TextView textPageInfo;
+    
     private OrderAdapter orderAdapter;
     private List<Order> orders = new ArrayList<>();
     
@@ -58,6 +64,7 @@ public class OrdersFragment extends Fragment {
     private String selectedOrderStatus = "";
     private String selectedPaymentStatus = "";
     private int currentPage = 1;
+    private int totalPages = 1;
     private final int PAGE_SIZE = 10;
 
     @Override
@@ -106,6 +113,12 @@ public class OrdersFragment extends Fragment {
         spinnerPaymentStatus = view.findViewById(R.id.spinnerPaymentStatus);
         buttonApplyFilter = view.findViewById(R.id.buttonApplyFilter);
         buttonBack = view.findViewById(R.id.buttonBack);
+        
+        // Pagination controls
+        paginationCard = view.findViewById(R.id.paginationCard);
+        buttonPreviousPage = view.findViewById(R.id.buttonPreviousPage);
+        buttonNextPage = view.findViewById(R.id.buttonNextPage);
+        textPageInfo = view.findViewById(R.id.textPageInfo);
     }
 
     private void setupRecyclerView() {
@@ -163,6 +176,21 @@ public class OrdersFragment extends Fragment {
             currentPage = 1;
             loadOrders();
         });
+        
+        // Pagination listeners
+        buttonPreviousPage.setOnClickListener(v -> {
+            if (currentPage > 1) {
+                currentPage--;
+                loadOrders();
+            }
+        });
+        
+        buttonNextPage.setOnClickListener(v -> {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadOrders();
+            }
+        });
     }
 
     private void loadOrders() {
@@ -190,6 +218,11 @@ public class OrdersFragment extends Fragment {
                         orders.clear();
                         orders.addAll(orderResponse.getResult().getItems());
                         orderAdapter.updateOrders(orders);
+                        
+                        // Update pagination info
+                        int totalCount = orderResponse.getResult().getTotalCount();
+                        totalPages = (int) Math.ceil((double) totalCount / PAGE_SIZE);
+                        updatePaginationUI();
                         
                         // Show empty state if no orders
                         if (orders.isEmpty()) {
@@ -224,5 +257,25 @@ public class OrdersFragment extends Fragment {
     private void showEmptyState(boolean show) {
         layoutEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
         recyclerViewOrders.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+    
+    private void updatePaginationUI() {
+        // Show pagination only if there are multiple pages
+        if (totalPages > 1) {
+            paginationCard.setVisibility(View.VISIBLE);
+            
+            // Update page info text
+            textPageInfo.setText("Page " + currentPage + " of " + totalPages);
+            
+            // Enable/disable buttons based on current page
+            buttonPreviousPage.setEnabled(currentPage > 1);
+            buttonNextPage.setEnabled(currentPage < totalPages);
+            
+            // Update button appearance
+            buttonPreviousPage.setAlpha(currentPage > 1 ? 1.0f : 0.5f);
+            buttonNextPage.setAlpha(currentPage < totalPages ? 1.0f : 0.5f);
+        } else {
+            paginationCard.setVisibility(View.GONE);
+        }
     }
 }
