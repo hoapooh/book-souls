@@ -8,14 +8,13 @@
     tools:context=".fragment.cart.CartFragment">
 
     <!-- Header -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/headerCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:cardBackgroundColor="@color/background_card"
         app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -102,14 +101,14 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Cart Items RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewCartItems"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="16dp"
+        android:layout_marginHorizontal="8dp"
         android:layout_marginTop="8dp"
         android:clipToPadding="false"
         android:paddingBottom="200dp"
@@ -169,7 +168,7 @@
     </LinearLayout>
 
     <!-- Bottom Summary Card -->
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottomCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -177,7 +176,6 @@
         android:layout_marginBottom="16dp"
         app:cardBackgroundColor="@color/background_card"
         app:cardCornerRadius="12dp"
-        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -275,6 +273,6 @@
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

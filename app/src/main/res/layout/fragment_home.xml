@@ -7,6 +7,7 @@
     android:background="@android:color/white"
     tools:context=".fragment.home.Home">
 
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/contentScrollView"
         android:layout_width="match_parent"
@@ -103,16 +104,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                tools:listitem="@layout/item_category"
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_category"
                 tools:orientation="horizontal" />
 
             <!-- Recent Books Section -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
@@ -122,26 +123,15 @@
                     android:textColor="@color/text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View All"
-                    android:textColor="@color/primary_color"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:padding="8dp" />
-
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewRecent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:listitem="@layout/item_book_list"
+                tools:itemCount="3"
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:itemCount="3" />
+                tools:listitem="@layout/item_book_list" />
 
         </LinearLayout>
 
@@ -152,9 +142,9 @@
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_gravity="center" />
-        
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <!-- Loading More Progress Bar - shown at the bottom when loading more items -->
     <ProgressBar
         android:id="@+id/loadingMoreProgressBar"
@@ -169,10 +159,10 @@
         android:id="@+id/emptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:visibility="gone"
-        android:layout_gravity="center">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"

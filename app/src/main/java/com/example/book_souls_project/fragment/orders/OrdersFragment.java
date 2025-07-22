@@ -101,7 +101,6 @@ public class OrdersFragment extends Fragment {
         if (currentCustomerId != null) {
             loadOrders();
         } else {
-            Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
             Navigation.findNavController(view).navigateUp();
         }
     }

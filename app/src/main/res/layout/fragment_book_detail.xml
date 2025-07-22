@@ -383,6 +383,186 @@
 <!--                app:icon="@drawable/ic_favorite_border"-->
 <!--                app:iconTint="@color/primary_color" />-->
 
+            <!-- Comments and Reviews Section -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/background_card"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Section Header -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Reviews &amp; Comments"
+                            android:textColor="@color/text_primary"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textTotalReviews"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12 reviews"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <!-- Add Review Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutAddReview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/rounded_border_light"
+                        android:padding="16dp"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Write a Review"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- Rating Selection -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your Rating:"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="8dp" />
+
+                        <RatingBar
+                            android:id="@+id/ratingBarUserRating"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:numStars="5"
+                            android:stepSize="0.5"
+                            android:rating="0"
+                            android:isIndicator="false"
+                            style="@style/Widget.AppCompat.RatingBar"
+                            android:progressTint="@color/warning_color"
+                            android:progressBackgroundTint="@color/text_secondary"
+                            android:secondaryProgressTint="@color/warning_color" />
+
+                        <!-- Comment Input -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:hint="Write your comment..."
+                            app:boxBackgroundColor="@color/primary_color_lighter"
+                            app:boxBackgroundMode="filled"
+                            app:boxCornerRadiusBottomEnd="8dp"
+                            app:boxCornerRadiusBottomStart="8dp"
+                            app:boxCornerRadiusTopEnd="8dp"
+                            app:boxCornerRadiusTopStart="8dp"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="1dp"
+                            app:boxStrokeColor="@color/primary_color">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/editTextComment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minLines="3"
+                                android:maxLines="5"
+                                android:gravity="top"
+                                android:textColor="@color/text_primary"
+                                android:textSize="14sp"
+                                android:inputType="textMultiLine|textCapSentences" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- Submit Button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonSubmitReview"
+                            android:layout_width="wrap_content"
+                            android:layout_height="48dp"
+                            android:layout_gravity="end"
+                            android:text="Submit Review"
+                            android:textColor="@color/text_white"
+                            android:backgroundTint="@color/primary_color"
+                            app:cornerRadius="8dp"
+                            app:icon="@drawable/ic_send"
+                            app:iconTint="@color/text_white" />
+
+                    </LinearLayout>
+
+                    <!-- Reviews List -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="User Reviews"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Reviews RecyclerView -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recyclerViewReviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false"
+                        android:layout_marginBottom="12dp"
+                        tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                        tools:listitem="@layout/item_review"
+                        tools:itemCount="3" />
+
+                    <!-- No Reviews Message -->
+                    <TextView
+                        android:id="@+id/textNoReviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No comments yet. Be the first to write a review!"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp"
+                        android:gravity="center"
+                        android:padding="24dp"
+                        android:layout_marginBottom="12dp"
+                        android:visibility="gone" />
+
+                    <!-- Load More Reviews Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonLoadMoreReviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Load More Reviews"
+                        android:textColor="@color/primary_color"
+                        android:backgroundTint="@color/background_card"
+                        app:cornerRadius="8dp"
+                        app:strokeColor="@color/primary_color"
+                        app:strokeWidth="1dp"
+                        app:icon="@drawable/ic_expand_more"
+                        app:iconTint="@color/primary_color" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
             <!-- Related Books Section -->
             <TextView
                 android:layout_width="wrap_content"

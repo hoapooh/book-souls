@@ -18,9 +18,9 @@ public class SettingsFragment extends Fragment {
 
     private LinearLayout layoutEditProfile;
     private LinearLayout layoutNotifications;
-    private LinearLayout layoutPrivacy;
+    /*private LinearLayout layoutPrivacy;
     private LinearLayout layoutLanguage;
-    private LinearLayout layoutAbout;
+    private LinearLayout layoutAbout;*/
 
     public static SettingsFragment newInstance() {
         return new SettingsFragment();
@@ -53,9 +53,9 @@ public class SettingsFragment extends Fragment {
     private void initViews(View view) {
         layoutEditProfile = view.findViewById(R.id.layoutEditProfile);
         layoutNotifications = view.findViewById(R.id.layoutNotifications);
-        layoutPrivacy = view.findViewById(R.id.layoutPrivacy);
+        /*layoutPrivacy = view.findViewById(R.id.layoutPrivacy);
         layoutLanguage = view.findViewById(R.id.layoutLanguage);
-        layoutAbout = view.findViewById(R.id.layoutAbout);
+        layoutAbout = view.findViewById(R.id.layoutAbout);*/
     }
 
     private void setupClickListeners() {
@@ -67,7 +67,7 @@ public class SettingsFragment extends Fragment {
             Navigation.findNavController(v).navigate(R.id.action_settingsFragment_to_notificationFragment);
         });
 
-        layoutPrivacy.setOnClickListener(v -> {
+        /*layoutPrivacy.setOnClickListener(v -> {
             // TODO: Navigate to Privacy settings
         });
 
@@ -77,6 +77,6 @@ public class SettingsFragment extends Fragment {
 
         layoutAbout.setOnClickListener(v -> {
             // TODO: Navigate to About page
-        });
+        });*/
     }
 }

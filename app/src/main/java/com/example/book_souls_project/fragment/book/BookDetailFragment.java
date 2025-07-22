@@ -10,9 +10,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.RatingBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.NavController;
@@ -21,17 +25,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.book_souls_project.R;
 import com.example.book_souls_project.adapter.BookFeaturedAdapter;
+import com.example.book_souls_project.adapter.ReviewAdapter;
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.BookRepository;
 import com.example.book_souls_project.api.repository.CategoryRepository;
 import com.example.book_souls_project.api.repository.PublisherRepository;
+import com.example.book_souls_project.api.repository.ReviewRepository;
 import com.example.book_souls_project.api.types.book.Book;
 import com.example.book_souls_project.api.types.category.Category;
 import com.example.book_souls_project.api.types.publisher.Publisher;
+import com.example.book_souls_project.api.types.review.Review;
+import com.example.book_souls_project.api.types.review.ReviewListResponse;
+import com.example.book_souls_project.api.types.review.ReviewCreateRequest;
+import com.example.book_souls_project.api.types.review.ReviewCreateResponse;
 import com.example.book_souls_project.util.CartManager;
+import com.example.book_souls_project.util.TokenManager;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +74,16 @@ public class BookDetailFragment extends Fragment {
 //    private MaterialButton buttonWishlist;
 
     private RecyclerView recyclerViewRelatedBooks;
+    
+    // Review components
+    private RatingBar ratingBarUserRating;
+    private float selectedRating = 0; // Track the selected rating (0-5, supports 0.5 increments)
+    private TextInputEditText editTextComment;
+    private MaterialButton buttonSubmitReview;
+    private RecyclerView recyclerViewReviews;
+    private MaterialButton buttonLoadMoreReviews;
+    private TextView textReviewsTitle;
+    private TextView textNoReviews;
 
     // Data
     private String bookId;
@@ -69,8 +91,16 @@ public class BookDetailFragment extends Fragment {
     private BookRepository bookRepository;
     private CategoryRepository categoryRepository;
     private PublisherRepository publisherRepository;
+    private ReviewRepository reviewRepository;
     private BookFeaturedAdapter relatedBooksAdapter;
+    private ReviewAdapter reviewAdapter;
     private CartManager cartManager;
+    private TokenManager tokenManager;
+    
+    // Review pagination
+    private int currentPage = 1;
+    private static final int PAGE_SIZE = 10;
+    private boolean isLoadingReviews = false;
 
     public static BookDetailFragment newInstance(String bookId) {
         BookDetailFragment fragment = new BookDetailFragment();
@@ -91,9 +121,13 @@ public class BookDetailFragment extends Fragment {
         bookRepository = ApiRepository.getInstance(requireContext()).getBookRepository();
         categoryRepository = ApiRepository.getInstance(requireContext()).getCategoryRepository();
         publisherRepository = ApiRepository.getInstance(requireContext()).getPublisherRepository();
+        reviewRepository = ApiRepository.getInstance(requireContext()).getReviewRepository();
         
         // Initialize cart manager
         cartManager = new CartManager(requireContext());
+        
+        // Initialize token manager
+        tokenManager = new TokenManager(requireContext());
     }
 
     @Override
@@ -111,9 +145,17 @@ public class BookDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Apply window insets to handle system bars (status bar, navigation bar)
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         
         if (bookId != null) {
             loadBookDetails();
+            loadReviews(); // Load initial reviews
         } else {
             showError("Book ID is missing");
         }
@@ -141,6 +183,20 @@ public class BookDetailFragment extends Fragment {
 //        buttonWishlist = view.findViewById(R.id.buttonWishlist);
         recyclerViewRelatedBooks = view.findViewById(R.id.recyclerViewRelatedBooks);
 
+        // Initialize review components
+        // Initialize star rating system
+        ratingBarUserRating = view.findViewById(R.id.ratingBarUserRating);
+        
+        editTextComment = view.findViewById(R.id.editTextComment);
+        buttonSubmitReview = view.findViewById(R.id.buttonSubmitReview);
+        recyclerViewReviews = view.findViewById(R.id.recyclerViewReviews);
+        buttonLoadMoreReviews = view.findViewById(R.id.buttonLoadMoreReviews);
+        textReviewsTitle = view.findViewById(R.id.textTotalReviews);
+        textNoReviews = view.findViewById(R.id.textNoReviews);
+
+        // Setup star rating clicks
+        setupStarRating();
+
         // Setup toolbar
         androidx.appcompat.widget.Toolbar toolbar = view.findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> {
@@ -164,6 +220,11 @@ public class BookDetailFragment extends Fragment {
             NavController navController = NavHostFragment.findNavController(this);
             navController.navigate(R.id.action_BookDetail_to_BookDetail, args);
         });
+        
+        // Setup reviews RecyclerView
+        reviewAdapter = new ReviewAdapter();
+        recyclerViewReviews.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewReviews.setAdapter(reviewAdapter);
     }
 
     private void setupClickListeners() {
@@ -184,6 +245,28 @@ public class BookDetailFragment extends Fragment {
 //                addToWishlist(currentBook);
 //            }
 //        });
+
+        // Review submission
+        buttonSubmitReview.setOnClickListener(v -> {
+            if (currentBook != null) {
+                submitReview();
+            }
+        });
+    }
+
+    private void setupStarRating() {
+        ratingBarUserRating.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            @Override
+            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                if (fromUser) {
+                    selectedRating = rating;
+                }
+            }
+        });
+    }
+    
+    private void updateStarDisplay() {
+        ratingBarUserRating.setRating(selectedRating);
     }
 
     private void loadBookDetails() {
@@ -419,6 +502,145 @@ public class BookDetailFragment extends Fragment {
         
         // TODO: Navigate to checkout/payment screen
         }
+
+    private void loadReviews() {
+        if (isLoadingReviews) return;
+        
+        isLoadingReviews = true;
+        
+        reviewRepository.getBookReviews(bookId, new ReviewRepository.ReviewListCallback() {
+            @Override
+            public void onSuccess(ReviewListResponse response) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        isLoadingReviews = false;
+                        
+                        // Use the convenience method getData() which internally calls result.getItems()
+                        List<Review> reviews = response.getData();
+                        int totalCount = response.getTotalCount();
+                        
+                        if (reviews != null && !reviews.isEmpty()) {
+                            reviewAdapter.setReviews(reviews);
+                            
+                            // Update reviews title with count
+                            textReviewsTitle.setText("Reviews (" + totalCount + ")");
+                            
+                            // Show reviews RecyclerView, hide no reviews message
+                            recyclerViewReviews.setVisibility(View.VISIBLE);
+                            textNoReviews.setVisibility(View.GONE);
+                            
+                            // Hide load more button since we're loading all reviews at once
+                            buttonLoadMoreReviews.setVisibility(View.GONE);
+                        } else {
+                            // No reviews found
+                            reviewAdapter.setReviews(new ArrayList<>());
+                            textReviewsTitle.setText("0 reviews");
+                            
+                            // Hide reviews RecyclerView, show no reviews message
+                            recyclerViewReviews.setVisibility(View.GONE);
+                            textNoReviews.setVisibility(View.VISIBLE);
+                            
+                            buttonLoadMoreReviews.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        isLoadingReviews = false;
+                        Log.e(TAG, "Error loading reviews: " + error);
+                        
+                        // Set empty state for reviews
+                        reviewAdapter.setReviews(new ArrayList<>());
+                        textReviewsTitle.setText("0 reviews");
+                        
+                        // Hide reviews RecyclerView, show no reviews message
+                        recyclerViewReviews.setVisibility(View.GONE);
+                        textNoReviews.setVisibility(View.VISIBLE);
+                        
+                        buttonLoadMoreReviews.setVisibility(View.GONE);
+                        
+                        Toast.makeText(getContext(), "Failed to load reviews: " + error, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+        });
+    }
+
+    private void submitReview() {
+        float rating = selectedRating;
+        String comment = editTextComment.getText() != null ? editTextComment.getText().toString().trim() : "";
+        
+        // Validate input
+        if (rating == 0) {
+            Toast.makeText(getContext(), "Please select a rating", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (comment.isEmpty()) {
+            Toast.makeText(getContext(), "Please write a comment", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Get current logged-in user ID from TokenManager
+        String userId = tokenManager.getUserId();
+        
+        // Check if user is logged in
+        if (userId == null || userId.isEmpty()) {
+            Toast.makeText(getContext(), "Please log in to submit a review", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Disable submit button to prevent double submission
+        buttonSubmitReview.setEnabled(false);
+        buttonSubmitReview.setText("Submitting...");
+        
+        ReviewCreateRequest request = new ReviewCreateRequest();
+        request.setBookId(bookId);
+        request.setUserId(userId);
+        request.setRating((double) rating); // Convert float to double
+        request.setComment(comment);
+        
+        reviewRepository.createReview(request, new ReviewRepository.ReviewCreateCallback() {
+            @Override
+            public void onSuccess(ReviewCreateResponse response) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        buttonSubmitReview.setEnabled(true);
+                        buttonSubmitReview.setText("Submit Review");
+                        
+                        // Clear form
+                        selectedRating = 0;
+                        updateStarDisplay();
+                        editTextComment.setText("");
+                        
+                        // Show success toast
+                        Toast.makeText(getContext(), "Comment created successfully!", Toast.LENGTH_SHORT).show();
+                        
+                        // Reload reviews to show the new one
+                        loadReviews();
+                    });
+                }
+            }
+
+            @Override
+            public void onError(String error) {
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        buttonSubmitReview.setEnabled(true);
+                        buttonSubmitReview.setText("Submit Review");
+                        
+                        Log.e(TAG, "Error submitting review: " + error);
+                        // Show error toast
+                        Toast.makeText(getContext(), "Failed to create comment: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
+    }
 
     private void showError(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();

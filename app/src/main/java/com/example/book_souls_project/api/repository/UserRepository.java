@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.book_souls_project.api.service.UserService;
 import com.example.book_souls_project.api.types.user.EditProfileRequest;
+import com.example.book_souls_project.api.types.user.FCMTokenRequest;
 import com.example.book_souls_project.api.types.user.UserAddress;
 import com.example.book_souls_project.api.types.user.UserProfile;
 import com.example.book_souls_project.util.DataUtils;
@@ -191,9 +192,46 @@ public class UserRepository extends BaseRepository {
         });
     }
 
+    public void updateFCMToken(String fcmToken, FCMTokenCallback callback) {
+        String token = tokenManager.getAccessToken();
+        
+        if (token == null || token.isEmpty()) {
+            callback.onError("No authentication token found");
+            return;
+        }
+
+        String authHeader = "Bearer " + token;
+        Call<Void> call = userService.updateFCMToken(authHeader, fcmToken);
+
+        executeCall(call, new ApiCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Log.d("UserRepository", "FCM token updated successfully");
+                callback.onFCMTokenUpdated();
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e("UserRepository", "Failed to update FCM token: " + error);
+                callback.onError(error);
+            }
+
+            @Override
+            public void onLoading() {
+                callback.onLoading();
+            }
+        });
+    }
+
     public interface UserProfileCallback {
         void onUserProfileLoaded(UserProfile userProfile);
         void onUserProfileUpdated(UserProfile userProfile);
+        void onError(String error);
+        default void onLoading() {}
+    }
+
+    public interface FCMTokenCallback {
+        void onFCMTokenUpdated();
         void onError(String error);
         default void onLoading() {}
     }
