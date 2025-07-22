@@ -1,25 +1,42 @@
 package com.example.book_souls_project;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
+import com.example.book_souls_project.api.repository.UserRepository;
 import com.example.book_souls_project.util.TokenManager;
+import com.example.book_souls_project.util.TokenManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private NavController navController;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
     private TokenManager tokenManager;
 
     @Override
@@ -30,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize authentication components
         authRepository = ApiRepository.getInstance(this).getAuthRepository();
+        userRepository = new UserRepository(this);
         tokenManager = new TokenManager(this);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -43,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Check login status and navigate accordingly
         checkLoginStatusAndNavigate();
+
+        // Create notification channel for FCM
+        createFCMNotificationChannel();
 
         // Listen for destination changes to show/hide bottom navigation
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -77,7 +98,87 @@ public class MainActivity extends AppCompatActivity {
                 bottomNavigationView.setVisibility(View.GONE);
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 0);
+            }
+        }
+
+        // Get FCM registration token for debugging
+        getFCMToken();
     }
+
+    /**
+     * Get FCM registration token for debugging
+     */
+    private void getFCMToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w("MainActivity", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        // Log and toast
+                        Log.d("MainActivity", "FCM Registration Token: " + token);
+                        Toast.makeText(MainActivity.this, "FCM Token logged (check console)", Toast.LENGTH_SHORT).show();
+                        
+                        // Send token to server if user is logged in
+                        sendFCMTokenToServer(token);
+                    }
+                });
+    }
+
+    /**
+     * Send FCM token to server for the current logged-in user
+     */
+    private void sendFCMTokenToServer(String fcmToken) {
+        if (authRepository.isLoggedIn()) {
+            userRepository.updateFCMToken(fcmToken, new UserRepository.FCMTokenCallback() {
+                @Override
+                public void onFCMTokenUpdated() {
+                    Log.d("MainActivity", "FCM token sent to server successfully");
+                }
+
+                @Override
+                public void onError(String error) {
+                    Log.e("MainActivity", "Failed to send FCM token: " + error);
+                }
+            });
+        } else {
+            Log.d("MainActivity", "User not logged in, FCM token not sent to server");
+        }
+    }
+
+    /**
+     * Create notification channel for Firebase Cloud Messaging
+     */
+    private void createFCMNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Firebase Notifications";
+            String description = "Notifications from Firebase Cloud Messaging";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel("FCM_CHANNEL", name, importance);
+            channel.setDescription(description);
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+                Log.d("MainActivity", "FCM notification channel created");
+            }
+        }
+    }
+
+
 
     /**
      * Check login status and navigate to appropriate screen
