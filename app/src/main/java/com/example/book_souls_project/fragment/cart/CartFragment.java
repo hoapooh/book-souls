@@ -4,13 +4,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,8 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.book_souls_project.R;
+import com.example.book_souls_project.MainActivity;
 import com.example.book_souls_project.adapter.CartItemAdapter;
 import com.example.book_souls_project.util.CartManager;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.NumberFormat;
@@ -141,8 +144,21 @@ public class CartFragment extends Fragment implements CartItemAdapter.OnCartItem
 
         // Browse Books Button
         buttonBrowseBooks.setOnClickListener(v -> {
-            // Navigate to books listing or home
-            Navigation.findNavController(v).navigateUp();
+            try {
+                // Use the navigation action to go to home
+                NavController navController = Navigation.findNavController(v);
+                navController.navigate(R.id.action_navigation_cart_to_navigation_home);
+            } catch (Exception e) {
+                // If action fails, try direct navigation to home
+                try {
+                    Navigation.findNavController(v).navigate(R.id.navigation_home);
+                } catch (Exception ex) {
+                    // Final fallback - restart activity to reset navigation state
+                    if (getActivity() != null) {
+                        getActivity().recreate();
+                    }
+                }
+            }
         });
     }
 
