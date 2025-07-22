@@ -44,6 +44,11 @@
         <action
             android:id="@+id/action_Home_to_BookSearch"
             app:destination="@id/navigation_book_search" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_cart"
+            app:destination="@id/navigation_cart"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="false" />
 
     </fragment>
     
@@ -86,6 +91,11 @@
         <action
             android:id="@+id/action_cartFragment_to_checkoutFragment"
             app:destination="@id/checkoutFragment" />
+        <action
+            android:id="@+id/action_navigation_cart_to_navigation_home"
+            app:destination="@id/navigation_home"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="false" />
     </fragment>
     
     <fragment
