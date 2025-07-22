@@ -13,7 +13,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:paddingVertical="16dp"
+        android:paddingHorizontal="12dp"
+        android:gravity="center_vertical">
 
         <!-- Selection Checkbox -->
         <CheckBox
@@ -21,16 +23,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="12dp"
             android:buttonTint="@color/primary_color" />
 
         <!-- Book Cover -->
         <androidx.cardview.widget.CardView
-            android:layout_width="80dp"
+            android:layout_width="60dp"
             android:layout_height="100dp"
-            android:layout_marginEnd="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp">
+            android:layout_marginEnd="6dp"
+            app:cardCornerRadius="8dp">
 
             <ImageView
                 android:id="@+id/imageBookCover"
@@ -46,7 +46,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical">
 
             <!-- Book Title -->
             <TextView
@@ -58,61 +60,63 @@
                 android:text="The Great Gatsby"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:lineSpacingExtra="2dp" />
 
             <!-- Book Author -->
             <TextView
                 android:id="@+id/textBookAuthor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="F. Scott Fitzgerald"
                 android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
 
             <!-- Book Price -->
             <TextView
                 android:id="@+id/textBookPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="6dp"
                 android:text="₫150,000"
                 android:textColor="@color/primary_color"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <!-- Quantity Controls -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageButton
                     android:id="@+id/buttonDecrease"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_remove"
-                    app:tint="@color/text_secondary" />
+                    android:src="@drawable/ic_minus"
+                    app:tint="@color/text_light_gray" />
 
                 <TextView
                     android:id="@+id/textQuantity"
-                    android:layout_width="40dp"
+                    android:layout_width="36dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="1"
                     android:textColor="@color/text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="4dp" />
 
                 <ImageButton
                     android:id="@+id/buttonIncrease"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_add"
                     app:tint="@color/primary_color" />
@@ -125,17 +129,20 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
+            android:gravity="center_vertical|end"
+            android:orientation="vertical"
+            android:minWidth="80dp">
 
             <!-- Remove Button -->
             <ImageButton
                 android:id="@+id/buttonRemove"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="end"
+                android:layout_marginBottom="8dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_delete"
+                android:padding="6dp"
                 app:tint="@color/error_color" />
 
             <!-- Total Price -->
@@ -143,10 +150,12 @@
                 android:id="@+id/textTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="end"
                 android:text="₫300,000"
                 android:textColor="@color/primary_color"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:gravity="end" />
 
         </LinearLayout>
 

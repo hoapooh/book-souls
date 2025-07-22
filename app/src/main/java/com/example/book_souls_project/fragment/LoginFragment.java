@@ -89,7 +89,7 @@ public class LoginFragment extends Fragment {
                     setLoadingState(false);
                     
                     // Show success message
-                    Toast.makeText(requireContext(), "Đăng nhập thành công!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Login successfully!", Toast.LENGTH_SHORT).show();
                     
                     // Navigate to home using MainActivity method
                     if (getActivity() instanceof MainActivity) {

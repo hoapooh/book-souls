@@ -272,7 +272,6 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
                     () -> {
                         requireActivity().runOnUiThread(() -> {
                             Log.d(TAG, "Successfully connected to SignalR");
-                            Toast.makeText(requireContext(), "Connected to chat", Toast.LENGTH_SHORT).show();
                         });
                     },
                     exception -> {
@@ -361,11 +360,9 @@ public class ChatFragment extends Fragment implements SignalRService.SignalRMess
         requireActivity().runOnUiThread(() -> {
             if (isConnected) {
                 Log.d(TAG, "Connected to SignalR");
-                Toast.makeText(requireContext(), "Chat connected", Toast.LENGTH_SHORT).show();
                 // Update UI to show connected state
             } else {
                 Log.w(TAG, "Disconnected from SignalR");
-                Toast.makeText(requireContext(), "Chat disconnected", Toast.LENGTH_SHORT).show();
                 // Update UI to show disconnected state
                 
                 // Optional: Try to reconnect after a delay if we were previously connected

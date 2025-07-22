@@ -89,7 +89,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
         private TextView textBookTitle;
         private TextView textBookAuthor;
         private TextView textBookPrice;
-        private TextView textRating;
+        private TextView textRating, textRatingCount;
         private ImageButton buttonAddToCart;
 
         public BookViewHolder(@NonNull View itemView) {
@@ -99,6 +99,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
             textBookAuthor = itemView.findViewById(R.id.textBookAuthor);
             textBookPrice = itemView.findViewById(R.id.textBookPrice);
             textRating = itemView.findViewById(R.id.textRating);
+            textRatingCount = itemView.findViewById(R.id.textRatingCount);
             buttonAddToCart = itemView.findViewById(R.id.buttonAddToCart);
 
             // Set click listeners
@@ -129,6 +130,9 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.BookVi
             
             // Set book author
             textBookAuthor.setText(book.getAuthor() != null ? book.getAuthor() : "Unknown Author");
+
+            // Set rating count
+            textRatingCount.setText("(" + book.getRatingCount() + " reviews)");
             
             // Set book price
             if (book.getPrice() > 0) {
