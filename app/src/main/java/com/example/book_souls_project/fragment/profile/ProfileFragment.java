@@ -41,7 +41,7 @@ public class ProfileFragment extends Fragment {
     // UI Components
     private LinearLayout layoutViewProfile;
     private LinearLayout layoutMyOrders;
-    private LinearLayout layoutSettings;
+//    private LinearLayout layoutSettings;
     private LinearLayout layoutSupport;
     private LinearLayout layoutLogout;
     private LinearLayout layoutNotifications;
@@ -105,7 +105,7 @@ public class ProfileFragment extends Fragment {
         // Menu layouts
         layoutViewProfile = view.findViewById(R.id.layoutViewProfile);
         layoutMyOrders = view.findViewById(R.id.layoutMyOrders);
-        layoutSettings = view.findViewById(R.id.layoutSettings);
+//        layoutSettings = view.findViewById(R.id.layoutSettings);
         layoutSupport = view.findViewById(R.id.layoutSupport);
         layoutLogout = view.findViewById(R.id.layoutLogout);
         layoutNotifications = view.findViewById(R.id.layoutNotifications);
@@ -120,9 +120,9 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_ordersFragment);
         });
 
-        layoutSettings.setOnClickListener(v -> {
+        /*layoutSettings.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_settingsFragment);
-        });
+        });*/
 
         layoutSupport.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_profileFragment_to_chatFragment);

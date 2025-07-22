@@ -141,8 +141,8 @@ public class CartFragment extends Fragment implements CartItemAdapter.OnCartItem
 
         // Browse Books Button
         buttonBrowseBooks.setOnClickListener(v -> {
-            // Navigate to books listing or home
-            Navigation.findNavController(v).navigateUp();
+            // Navigate to home page
+            Navigation.findNavController(v).navigate(R.id.navigation_home);
         });
     }
 
