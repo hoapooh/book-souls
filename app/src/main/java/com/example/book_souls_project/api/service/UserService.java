@@ -11,6 +11,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
@@ -18,6 +19,7 @@ import retrofit2.http.Query;
 
 public interface UserService {
     String USERS = "users";
+    String AUTHENTICATION = "authentication";
 
     @GET(USERS + "/profile")
     Call<UserProfile> getUserProfile(@Header("Authorization") String authorization);
@@ -57,11 +59,11 @@ public interface UserService {
                                        @Query("Address.Country") String addressCountry);
 
     // FCM Token management
-    @POST(USERS + "/fcm-token")
+    @PATCH(AUTHENTICATION + "/update-fcm-token")
     Call<Void> updateFCMToken(@Header("Authorization") String authorization,
-                              @Body FCMTokenRequest request);
+                              @Query("fcmToken") String fcmToken);
 
-    @PUT(USERS + "/fcm-token")
+    /*@PUT(USERS + "/fcm-token")
     Call<Void> refreshFCMToken(@Header("Authorization") String authorization,
-                               @Body FCMTokenRequest request);
+                               @Body FCMTokenRequest request);*/
 }

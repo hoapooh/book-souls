@@ -37,27 +37,27 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         // Check if message contains a notification payload
-        if (remoteMessage.getNotification() != null) {
+        /*if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
             String title = remoteMessage.getNotification().getTitle();
             String body = remoteMessage.getNotification().getBody();
             showNotification(title != null ? title : "Notification", body != null ? body : "");
-        }
+        }*/
     }
     // [END receive_message]
 
     private void handleDataMessage(java.util.Map<String, String> data) {
         Log.d(TAG, "Handling data message: " + data);
-        
+
         // Extract common fields
         String title = data.get("title");
         String body = data.get("body");
         String type = data.get("type");
-        
+
         // Handle different notification types
         if (type != null) {
             Log.d(TAG, "Notification type: " + type);
-            
+
             switch (type) {
                 case "order_status_update":
                     handleOrderStatusUpdate(data, title, body);
@@ -87,28 +87,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String orderId = data.get("orderId");
         String status = data.get("status");
         String userId = data.get("userId");
-        
+
         Log.d(TAG, "Order status update - Order: " + orderId + ", Status: " + status + ", User: " + userId);
-        
+
         // Create enhanced notification for order status
         String notificationTitle = title != null ? title : "Order Status Updated";
-        String notificationBody = body != null ? body : 
+        String notificationBody = body != null ? body :
             String.format("Your order #%s is now %s", orderId, status);
-        
+
         showOrderNotification(notificationTitle, notificationBody, orderId, status);
     }
 
     private void handleNewOrder(java.util.Map<String, String> data, String title, String body) {
         // Handle new order notifications (for admin/store users)
         Log.d(TAG, "New order notification received");
-        showNotification(title != null ? title : "New Order", 
+        showNotification(title != null ? title : "New Order",
                         body != null ? body : "You have a new order");
     }
 
     private void handlePaymentConfirmation(java.util.Map<String, String> data, String title, String body) {
         // Handle payment confirmation notifications
         Log.d(TAG, "Payment confirmation notification received");
-        showNotification(title != null ? title : "Payment Confirmed", 
+        showNotification(title != null ? title : "Payment Confirmed",
                         body != null ? body : "Your payment has been processed");
     }
 
@@ -143,23 +143,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void sendRegistrationToServer(String token) {
         Log.d(TAG, "Sending token to server: " + token);
-        
+
         try {
             // Get user info from TokenManager
             TokenManager tokenManager = new TokenManager(this);
-            String userId = tokenManager.getUserId();
             String authToken = tokenManager.getAccessToken();
-            
-            if (userId != null && authToken != null) {
+
+            if (authToken != null) {
                 // Create API client and service
                 ApiClient apiClient = ApiClient.getInstance(this);
                 UserService userService = apiClient.getRetrofit().create(UserService.class);
-                
-                // Create request
-                FCMTokenRequest request = new FCMTokenRequest(userId, token);
-                
+
                 // Send to server
-                userService.updateFCMToken("Bearer " + authToken, request).enqueue(new retrofit2.Callback<Void>() {
+                userService.updateFCMToken("Bearer " + authToken, token).enqueue(new retrofit2.Callback<Void>() {
                     @Override
                     public void onResponse(retrofit2.Call<Void> call, retrofit2.Response<Void> response) {
                         if (response.isSuccessful()) {
@@ -168,7 +164,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                             Log.e(TAG, "Failed to send FCM token to server: " + response.code());
                         }
                     }
-                    
+
                     @Override
                     public void onFailure(retrofit2.Call<Void> call, Throwable t) {
                         Log.e(TAG, "Error sending FCM token to server", t);
@@ -190,7 +186,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showNotification(String title, String message) {
         Log.d(TAG, "Showing notification - Title: " + title + ", Message: " + message);
-        
+
         // Check if notification permission is granted
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
@@ -199,7 +195,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
         }
-        
+
         try {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "FCM_CHANNEL")
                     .setContentTitle(title)
@@ -208,7 +204,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(NotificationCompat.DEFAULT_ALL);
-                    
+
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (manager != null) {
                 manager.notify((int) System.currentTimeMillis(), builder.build());
@@ -223,7 +219,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void showOrderNotification(String title, String message, String orderId, String status) {
         Log.d(TAG, "Showing order notification - Title: " + title + ", Message: " + message + ", Order: " + orderId);
-        
+
         // Check if notification permission is granted
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
@@ -232,21 +228,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 return;
             }
         }
-        
+
         try {
             // Create intent to open orders page when notification is tapped
             android.content.Intent intent = new android.content.Intent(this, MainActivity.class);
             intent.putExtra("navigate_to", "orders");
             intent.putExtra("order_id", orderId);
             intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            
+
             android.app.PendingIntent pendingIntent = android.app.PendingIntent.getActivity(
-                this, 
+                this,
                 orderId.hashCode(), // Use orderId hash as unique request code
-                intent, 
+                intent,
                 android.app.PendingIntent.FLAG_ONE_SHOT | android.app.PendingIntent.FLAG_IMMUTABLE
             );
-            
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "FCM_CHANNEL")
                     .setContentTitle(title)
                     .setContentText(message)
@@ -255,7 +251,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(NotificationCompat.DEFAULT_ALL)
                     .setContentIntent(pendingIntent);
-                    
+
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (manager != null) {
                 manager.notify(orderId.hashCode(), builder.build());

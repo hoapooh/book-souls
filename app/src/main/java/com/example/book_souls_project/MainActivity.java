@@ -23,23 +23,20 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.book_souls_project.api.ApiRepository;
 import com.example.book_souls_project.api.repository.AuthRepository;
-import com.example.book_souls_project.api.service.UserService;
-import com.example.book_souls_project.api.types.user.FCMTokenRequest;
+import com.example.book_souls_project.api.repository.UserRepository;
+import com.example.book_souls_project.util.TokenManager;
 import com.example.book_souls_project.util.TokenManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.messaging.FirebaseMessaging;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private NavController navController;
     private AuthRepository authRepository;
+    private UserRepository userRepository;
     private TokenManager tokenManager;
 
     @Override
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize authentication components
         authRepository = ApiRepository.getInstance(this).getAuthRepository();
+        userRepository = new UserRepository(this);
         tokenManager = new TokenManager(this);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -143,32 +141,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private void sendFCMTokenToServer(String fcmToken) {
         if (authRepository.isLoggedIn()) {
-            String userId = tokenManager.getUserId();
-            String authToken = tokenManager.getAccessToken();
-            
-            if (userId != null && authToken != null) {
-                UserService userService = ApiRepository.getInstance(this)
-                        .getRetrofit().create(UserService.class);
-                
-                FCMTokenRequest request = new FCMTokenRequest(userId, fcmToken);
-                
-                userService.updateFCMToken("Bearer " + authToken, request)
-                        .enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                if (response.isSuccessful()) {
-                                    Log.d("MainActivity", "FCM token sent to server successfully");
-                                } else {
-                                    Log.e("MainActivity", "Failed to send FCM token: " + response.code());
-                                }
-                            }
-                            
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Log.e("MainActivity", "Error sending FCM token", t);
-                            }
-                        });
-            }
+            userRepository.updateFCMToken(fcmToken, new UserRepository.FCMTokenCallback() {
+                @Override
+                public void onFCMTokenUpdated() {
+                    Log.d("MainActivity", "FCM token sent to server successfully");
+                }
+
+                @Override
+                public void onError(String error) {
+                    Log.e("MainActivity", "Failed to send FCM token: " + error);
+                }
+            });
         } else {
             Log.d("MainActivity", "User not logged in, FCM token not sent to server");
         }
