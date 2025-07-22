@@ -2,6 +2,7 @@ package com.example.book_souls_project.api.service;
 
 import com.example.book_souls_project.api.types.user.EditProfileRequest;
 import com.example.book_souls_project.api.types.user.UserProfile;
+import com.example.book_souls_project.api.types.user.FCMTokenRequest;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -10,12 +11,15 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
+import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 public interface UserService {
     String USERS = "users";
+    String AUTHENTICATION = "authentication";
 
     @GET(USERS + "/profile")
     Call<UserProfile> getUserProfile(@Header("Authorization") String authorization);
@@ -53,4 +57,13 @@ public interface UserService {
                                        @Query("Address.District") String addressDistrict,
                                        @Query("Address.City") String addressCity,
                                        @Query("Address.Country") String addressCountry);
+
+    // FCM Token management
+    @PATCH(AUTHENTICATION + "/update-fcm-token")
+    Call<Void> updateFCMToken(@Header("Authorization") String authorization,
+                              @Query("fcmToken") String fcmToken);
+
+    /*@PUT(USERS + "/fcm-token")
+    Call<Void> refreshFCMToken(@Header("Authorization") String authorization,
+                               @Body FCMTokenRequest request);*/
 }
